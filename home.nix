@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 {
 
@@ -36,10 +36,17 @@
   '';
   home.sessionVariables = {
     GTK_THEME = "Adwaita-dark";
+    QT_QPA_PLATFORM = "wayland;xcb";
+    QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";
   };
 
   # Enable fontconfig for fonts
   fonts.fontconfig.enable = true;
+  fonts.fontconfig.defaultFonts = {
+    sansSerif = [ "Monocraft" ];
+    serif = [ "Monocraft" ];
+    monospace = [ "Monocraft" ];
+  };
   
   xdg.mimeApps.enable = true;
   xdg.mimeApps.defaultApplications = {
@@ -98,7 +105,7 @@
     papirus-icon-theme
     gnome-themes-extra
     waybar
-    fira-code
+    monocraft
     nautilus
     rofi
     spotify
@@ -109,6 +116,7 @@
     wl-clipboard
     libnotify
     xdg-utils
+    matugen
   ];
 
 # INFO: Files
@@ -119,8 +127,6 @@
     ".config/niri".source           = ./files/config/niri;
     ".config/vicinae".source        = ./files/config/vicinae;
     ".config/millennium".source     = ./files/config/millennium;
-    # ".local/share/QuickSnip".source = ./files/config/quicksnip;
-    # ".local/share/skwd-wall".source = ./files/config/skwd-wall;
   };
 
   # Home Manager can also manage your environment variables through
@@ -158,7 +164,7 @@
     package = pkgs.kitty;
     settings = {
       include = "current-theme.conf";
-      font_family = "Fira Code";
+      font_family = "Monocraft";
       font_size = 13;
       shell = "${pkgs.fish}/bin/fish";
       cursor_trail = 5;
@@ -181,8 +187,6 @@
 
   programs.fish = {
     enable = true;
-    interactiveShellInit = ''
-    '';
   };
   systemd.user.startServices = true;
 }

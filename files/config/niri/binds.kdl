@@ -149,6 +149,8 @@ binds {
 
     Mod+Shift+W hotkey-overlay-title="Wallpaper Selector: skwd-wall" { spawn-sh "skwd-wall-toggle"; }
 
+    Mod+Shift+Escape { spawn "~/.local/share/quickshell-lockscreen/lock.sh"; }
+
     Mod+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
 
     Mod+Shift+E { quit; }

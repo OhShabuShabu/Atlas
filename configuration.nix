@@ -9,6 +9,8 @@
     [ # Include the results of the hardware scan.
       ./files/nix/hardware-configuration.nix
       # ./extra/virtualisation.nix
+      inputs.nirinit.nixosModules.nirinit
+      inputs.silentSDDM.nixosModules.default
     ];
 
   # INFO: BOOT
@@ -17,7 +19,7 @@
     loader.efi.canTouchEfiVariables = true; 
     initrd.luks.devices."luks-a25ffcac-804c-475f-889c-753d99a91cc6".device = "/dev/disk/by-uuid/a25ffcac-804c-475f-889c-753d99a91cc6";
     plymouth = {
-      enable = true;
+      enable = false;
       theme = "simple";
       themePackages = [
         (pkgs.stdenv.mkDerivation {
@@ -40,8 +42,8 @@
     consoleLogLevel = 0;
     initrd.verbose = false;
     kernelParams = [
-      "quiet"
-      "splash"
+    #  "quiet"
+    #  "splash"
       "boot.shell_on_fail"
       "loglevel=3"
       "rd.systemd.show_status=false"
@@ -101,6 +103,14 @@
   nixpkgs.config.allowUnfree = true; # Allow unfree packages
 
   # INFO: Enables
+  programs.virt-manager.enable = true;
+
+  users.groups.libvirtd.members = ["$(name)"];
+
+  virtualisation.libvirtd.enable = true;
+
+  virtualisation.spiceUSBRedirection.enable = true;
+
   virtualisation.docker.enable = true;
   programs.niri.enable = true; 
   services.mullvad-vpn.enable = true;
@@ -112,17 +122,31 @@
   hardware.steam-hardware.enable = true;
   services.ollama.enable = true;
 
+  services.nirinit = {
+    enable = true;
+    settings = {
+      # Map app_id to launch command (useful for PWAs, flatpaks, etc.)
+      skip.apps = [ "steam" "vesktop" ];
+    };
+  };
+  programs.silentSDDM = {
+    enable = true;
+    theme = "rei";
+    # settings = { ... }; see example in module
+  };
+
+
   environment.systemPackages = with pkgs; [
     (let
-      qsPkgs = inputs.quickshell.inputs.nixpkgs.legacyPackages.${pkgs.stdenv.hostPlatform.system};
-    in inputs.quickshell.packages.${pkgs.stdenv.hostPlatform.system}.default.withModules [
+      qs = inputs.quickshell;
+      qsPkgs = qs.inputs.nixpkgs.legacyPackages.${pkgs.stdenv.hostPlatform.system};
+    in qs.packages.${pkgs.stdenv.hostPlatform.system}.default.withModules [
       qsPkgs.qt6.qtmultimedia
     ])
     niri
     python3
     curl
     mullvad
-    sddm-astronaut
     waybar
     inputs.awww.packages.${pkgs.stdenv.hostPlatform.system}.awww
     curl
@@ -135,7 +159,6 @@
     roboto-mono
     material-design-icons
     matugen
-    # QuickSnip dependencies (wlrctl, wtype)
     wtype
     wlrctl
     linux-wallpaperengine
@@ -152,17 +175,23 @@
     udev-gothic-nf
     noto-fonts
     liberation_ttf
+    (pkgs.stdenv.mkDerivation {
+      pname = "monocraft";
+      version = "4.2.1";
+      src = pkgs.fetchurl {
+        url = "https://github.com/IdreesInc/Monocraft/releases/download/v4.2.1/Monocraft-otf.zip";
+        hash = "sha256-5iO3LxAhBirQFWzEH1SxCOcL014rKVEnR1u1ctit5h0=";
+      };
+      nativeBuildInputs = [ pkgs.unzip ];
+      installPhase = ''
+        mkdir -p $out/share/fonts/otf
+        unzip -j $src -d $out/share/fonts/otf "*.otf"
+      '';
+    })
   ]; 
   services.displayManager.sddm = {
     enable = true;
-    theme = "sddm-astronaut-theme";
     wayland.enable = false;
-    extraPackages = with pkgs; [ 
-      kdePackages.qtmultimedia
-      kdePackages.qtsvg
-      kdePackages.qtvirtualkeyboard
-      kdePackages.qtbase
-    ]; 
   };
 
   # XDG Portal
@@ -174,21 +203,6 @@
     ];
   };
   
-  services.logind.settings = {
-    Login = {
-      # Sets the short press of the power button to shut down
-      HandlePowerKey = "poweroff";
-      
-      # Optional: ensure long press also powers off
-      HandlePowerKeyLongPress = "poweroff";
-      
-      # Optional: if you want to prevent hibernation from other keys as well
-      HandleHibernateKey = "ignore";
-      HandleSuspendKey = "ignore";
-      PowerKeyIgnoreInhibited = "yes";
-    };
-  };
-
 
   # INFO: Performance
   boot.kernelModules = [ "tcp_bbr" ];               # FIX: network congestion control (helps with packet jitter)
