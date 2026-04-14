@@ -182,6 +182,21 @@
   programs.fish = {
     enable = true;
     interactiveShellInit = ''
+      function rebuild
+        set -l temp (mktemp)
+        if sudo nixos-rebuild switch --flake .#atlas 2>&1 | tee $temp
+          git add -A
+          git commit -m "rebuild: (date)"
+          git push origin main:burning-edge
+          rm $temp
+          echo "✓ Rebuild succeeded, pushed to burning-edge"
+        else
+          rm $temp
+          echo "✗ Rebuild failed, not pushed"
+          return 1
+        end
+      end
+      alias upd rebuild
     '';
   };
   systemd.user.startServices = true;
