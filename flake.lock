@@ -418,6 +418,22 @@
         "type": "github"
       }
     },
+    "quicksnip-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1775917196,
+        "narHash": "sha256-KRylY9R9X7kDaspfYGx4HUdaWdCOycvvS4JtwwKHs18=",
+        "owner": "Ronin-CK",
+        "repo": "QuickSnip",
+        "rev": "022815cac40fecfca8fecab335c9a5848981faa5",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Ronin-CK",
+        "repo": "QuickSnip",
+        "type": "github"
+      }
+    },
     "re2-src": {
       "flake": false,
       "locked": {
@@ -442,7 +458,9 @@
         "matugen": "matugen",
         "millennium": "millennium",
         "nixpkgs": "nixpkgs_4",
-        "quickshell": "quickshell"
+        "quickshell": "quickshell",
+        "quicksnip-src": "quicksnip-src",
+        "skwd-wall-src": "skwd-wall-src"
       }
     },
     "rust-overlay": {
@@ -463,6 +481,22 @@
       "original": {
         "owner": "oxalica",
         "repo": "rust-overlay",
+        "type": "github"
+      }
+    },
+    "skwd-wall-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1776018509,
+        "narHash": "sha256-wS8OMebyRueXH0KXFD21Rv22hJzCFXgE59P7k/LUn6k=",
+        "owner": "liixini",
+        "repo": "skwd-wall",
+        "rev": "7d5bdbbde3f465cd4549b2b17d7c77b5f5c5d348",
+        "type": "github"
+      },
+      "original": {
+        "owner": "liixini",
+        "repo": "skwd-wall",
         "type": "github"
       }
     },
