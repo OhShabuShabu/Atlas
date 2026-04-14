@@ -1,0 +1,5 @@
+spawn-sh-at-startup "awww-daemon"
+spawn-sh-at-startup "vicinae server"
+spawn-sh-at-startup "xwayland-satellite"
+spawn-sh-at-startup "mullvad connect"
+spawn-sh-at-startup "skwd-wall-daemon"

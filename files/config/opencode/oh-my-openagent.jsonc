@@ -1,0 +1,9 @@
+{
+  "fallback_models": [
+    "opencode/claude-opus-4-6",
+    "opencode/gpt-5.4",
+    "opencode/claude-sonnet-4-6",
+    "opencode/minimax-m2.7",
+    "opencode/claude-haiku-4-5"
+  ]
+}
