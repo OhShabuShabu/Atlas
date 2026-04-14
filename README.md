@@ -18,8 +18,7 @@ NixOS 25.11 configuration with Home Manager.
 - Flatpak support
 - Mullvad VPN
 - Docker
-- [Waybar](https://github.com/Alexays/Waybar) for status bar
-- [Vicinae](https://github.com/Alexays/Waybar/wiki/Modules#vicinae) Spotify controller
+- [Vicinae](https://github.com/vicinaehq/vicinae) (launcher)
 
 ## Quick Start
 
@@ -64,11 +63,10 @@ sudo nixos-rebuild switch --flake .#atlas --update
 - PrismLauncher (Minecraft)
 - Vesktop (Discord)
 - VLC, mpv (media)
-- Rofi (launcher)
 - fastfetch (system info)
 
 ## Hardware
 
-- AMD CPU (performance governor)
+- Intel CPU (performance governor)
 - AMD GPU (ROCm for Ollama)
 - BBR network congestion control
