@@ -123,7 +123,7 @@
       owner = "Ronin-CK";
       repo = "QuickSnip";
       rev = "main";
-      sha256 = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+      sha256 = "sha256-KRylY9R9X7kDaspfYGx4HUdaWdCOycvvS4JtwwKHs18=";
     };
     # ".local/share/skwd-wall".source = ./files/config/skwd-wall;
   };

@@ -145,7 +145,7 @@ binds {
     Alt+Print { screenshot-window; }
     Mod+Shift+S { screenshot; }
 
-    Mod+Shift+G { spawn "sh" "-c" "quickshell -c ~/.local/share/QuickSnip -n"; }
+    Mod+Shift+G { spawn "sh" "-c" "quickshell -c ~/.config/quickshell/QuickSnip -n"; }
 
     Mod+Shift+W hotkey-overlay-title="Wallpaper Selector: skwd-wall" { spawn-sh "skwd-wall-toggle"; }
 
