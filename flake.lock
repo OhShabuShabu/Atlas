@@ -418,22 +418,6 @@
         "type": "github"
       }
     },
-    "quicksnip-src": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1775917196,
-        "narHash": "sha256-KRylY9R9X7kDaspfYGx4HUdaWdCOycvvS4JtwwKHs18=",
-        "owner": "Ronin-CK",
-        "repo": "QuickSnip",
-        "rev": "022815cac40fecfca8fecab335c9a5848981faa5",
-        "type": "github"
-      },
-      "original": {
-        "owner": "Ronin-CK",
-        "repo": "QuickSnip",
-        "type": "github"
-      }
-    },
     "re2-src": {
       "flake": false,
       "locked": {
@@ -459,7 +443,6 @@
         "millennium": "millennium",
         "nixpkgs": "nixpkgs_4",
         "quickshell": "quickshell",
-        "quicksnip-src": "quicksnip-src",
         "skwd-wall-src": "skwd-wall-src"
       }
     },

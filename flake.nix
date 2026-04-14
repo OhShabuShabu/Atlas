@@ -15,10 +15,6 @@
       url = "github:liixini/skwd-wall";
       flake = false;
     };
-    quicksnip-src = {
-      url = "github:Ronin-CK/QuickSnip";
-      flake = false;
-    };
   };
   outputs = inputs @ { self, nixpkgs, home-manager, quickshell, ... }:
     let
@@ -49,20 +45,8 @@
             file
             awww.packages.${system}.awww
           ];
-
-          snipDeps = with pkgs; [
-            grim
-            imagemagick
-            tesseract
-            tesseract-data-eng
-            wl-clipboard
-            curl
-            libnotify
-            xdg-utils
-            wlrctl
-            wtype
-          ];
-        in {
+        in
+        {
           skwd-wall = pkgs.stdenv.mkDerivation {
             pname = "skwd-wall";
             version = "unstable";
@@ -81,32 +65,6 @@
 
               makeWrapper ${quickshellWithModules}/bin/quickshell $out/bin/skwd-wall-toggle \
                 --add-flags "ipc -p $out/share/skwd-wall/daemon.qml call wallpaper toggle"
-            '';
-          };
-
-          quicksnip = pkgs.stdenv.mkDerivation {
-            pname = "quicksnip";
-            version = "unstable";
-            src = inputs.quicksnip-src;
-
-            nativeBuildInputs = [ pkgs.makeWrapper ];
-
-            installPhase = ''
-              mkdir -p $out/share/quickshell/QuickSnip
-              cp -r . $out/share/quickshell/QuickSnip
-              mkdir -p $out/bin
-
-              makeWrapper ${quickshellWithModules}/bin/quickshell $out/bin/quicksnip \
-                --prefix PATH : ${pkgs.lib.makeBinPath snipDeps} \
-                --set QUICKSHELL_CONFIG_DIR "$out/share" \
-                --add-flags "-c" "QuickSnip" "-n"
-            '';
-
-            postInstall = ''
-              if [ ! -e "$HOME/.config/quickshell/QuickSnip" ]; then
-                mkdir -p "$HOME/.config/quickshell"
-                ln -s "$out/share/quickshell/QuickSnip" "$HOME/.config/quickshell/QuickSnip"
-              fi
             '';
           };
         });
