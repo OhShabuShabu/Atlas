@@ -95,14 +95,18 @@
               mkdir -p $out/share/quickshell/QuickSnip
               cp -r . $out/share/quickshell/QuickSnip
               mkdir -p $out/bin
-              mkdir -p $out/etc/xdg/quickshell
-
-              ln -s $out/share/quickshell/QuickSnip $out/etc/xdg/quickshell/QuickSnip
 
               makeWrapper ${quickshellWithModules}/bin/quickshell $out/bin/quicksnip \
                 --prefix PATH : ${pkgs.lib.makeBinPath snipDeps} \
                 --set QUICKSHELL_CONFIG_DIR "$out/share" \
                 --add-flags "-c" "QuickSnip" "-n"
+            '';
+
+            postInstall = ''
+              if [ ! -e "$HOME/.config/quickshell/QuickSnip" ]; then
+                mkdir -p "$HOME/.config/quickshell"
+                ln -s "$out/share/quickshell/QuickSnip" "$HOME/.config/quickshell/QuickSnip"
+              fi
             '';
           };
         });

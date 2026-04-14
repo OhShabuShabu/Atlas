@@ -119,7 +119,12 @@
     ".config/niri".source           = ./files/config/niri;
     ".config/vicinae".source        = ./files/config/vicinae;
     ".config/millennium".source     = ./files/config/millennium;
-    # ".local/share/QuickSnip".source = ./files/config/quicksnip;
+    ".config/quickshell/QuickSnip".source = pkgs.fetchFromGitHub {
+      owner = "Ronin-CK";
+      repo = "QuickSnip";
+      rev = "main";
+      sha256 = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+    };
     # ".local/share/skwd-wall".source = ./files/config/skwd-wall;
   };
 
