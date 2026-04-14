@@ -41,7 +41,7 @@ sudo nixos-rebuild switch --flake .#atlas --update
     ├── config/
     │   ├── niri/          # Niri (WM) config
     │   ├── nvim/          # Neovim config
-    │   ├── vicinae/       # Waybar Spotify module
+    │   ├── vicinae/       # Vicinae launcher config
     │   ├── millennium/    # Steam/Proton config
     │   └── plymouth/     # Boot theme
     ├── extra/
