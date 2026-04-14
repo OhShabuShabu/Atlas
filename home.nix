@@ -113,15 +113,14 @@
 
 # INFO: Files
   home.file = {
-    ".icons".source                 = files/config/.icons;
-    ".config/nix".source            = files/config/nix; 
-    ".config/nvim".source           = files/config/nvim;
-    ".config/niri".source           = files/config/niri;
-    ".config/vicinae".source        = files/config/vicinae;
-    ".config/opencode".source       = files/config/opencode;
-    ".config/millennium".source     = files/config/millennium;
-    # ".local/share/QuickSnip".source = files/config/quicksnip;
-    # ".local/share/skwd-wall".source = files/config/skwd-wall;
+    ".icons".source                 = ./files/config/.icons;
+    ".config/nix".source            = ./files/config/nix; 
+    ".config/nvim".source           = ./files/config/nvim;
+    ".config/niri".source           = ./files/config/niri;
+    ".config/vicinae".source        = ./files/config/vicinae;
+    ".config/millennium".source     = ./files/config/millennium;
+    # ".local/share/QuickSnip".source = ./files/config/quicksnip;
+    # ".local/share/skwd-wall".source = ./files/config/skwd-wall;
   };
 
   # Home Manager can also manage your environment variables through
@@ -178,6 +177,7 @@
       "map shift+cmd+backspace" = "change_font_size all 14";
     };
   };
+  programs.opencode.enable = true;
 
   programs.fish = {
     enable = true;
