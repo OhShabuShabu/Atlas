@@ -16,3 +16,17 @@ window-rule {
   geometry-corner-radius 5
   clip-to-geometry true
 }
+window-rule {
+    match title="^clock$"
+    open-floating true
+    default-floating-position x=10 y=10 relative-to="top"
+    default-column-width { fixed 460; }
+    default-window-height { fixed 160; }
+}
+window-rule {
+    match title="^btop$"
+    open-floating true
+    default-floating-position x=10 y=10 relative-to="bottom"
+    default-column-width { fixed 960; }
+    default-window-height { fixed 460; }
+}

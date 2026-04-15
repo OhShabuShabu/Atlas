@@ -11,10 +11,6 @@
     matugen = {
       url = "github:InioX/Matugen?ref=refs/tags/v3.1.0";
     };
-    nirinit = {
-      url = "github:amaanq/nirinit";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     silentSDDM = {
       url = "github:uiriansan/SilentSDDM";
       inputs.nixpkgs.follows = "nixpkgs";

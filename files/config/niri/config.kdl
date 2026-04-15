@@ -4,6 +4,9 @@ cursor {
     xcursor-theme "oreo_black_cursors"
     xcursor-size 32
 }
+hotkey-overlay {
+    skip-at-startup
+}
 
 include "./binds.kdl"
 include "./env.kdl"

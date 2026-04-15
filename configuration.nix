@@ -9,7 +9,6 @@
     [ # Include the results of the hardware scan.
       ./files/nix/hardware-configuration.nix
       # ./extra/virtualisation.nix
-      inputs.nirinit.nixosModules.nirinit
       inputs.silentSDDM.nixosModules.default
     ];
 
@@ -103,11 +102,40 @@
   nixpkgs.config.allowUnfree = true; # Allow unfree packages
 
   # INFO: Enables
+  networking.firewall.trustedInterfaces = [ "virbr0" ];
+
+  services.hardware.openrgb = { 
+    enable = true; 
+    package = pkgs.openrgb-with-all-plugins; 
+    motherboard = "intel"; 
+    server.port = 6742; 
+  };
+
+  
+  systemd = {
+    user.services.polkit-gnome-authentication-agent-1 = {
+      description = "polkit-gnome-authentication-agent-1";
+      wantedBy = [ "graphical-session.target" ];
+      wants = [ "graphical-session.target" ];
+      after = [ "graphical-session.target" ];
+      serviceConfig = {
+          Type = "simple";
+          ExecStart = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1";
+          Restart = "on-failure";
+          RestartSec = 1;
+          TimeoutStopSec = 10;
+        };
+    };
+  };
   programs.virt-manager.enable = true;
 
-  users.groups.libvirtd.members = ["$(name)"];
+  users.groups.libvirtd.members = ["yusa"];
 
-  virtualisation.libvirtd.enable = true;
+  virtualisation.libvirtd = {
+    enable = true;
+    qemu.vhostUserPackages = with pkgs; [ virtiofsd ];
+  };
+
 
   virtualisation.spiceUSBRedirection.enable = true;
 
@@ -118,17 +146,22 @@
     enable = true;
     package = pkgs.millennium-steam;
   };
+  environment.etc."xdg/color-schemes/SkwdMatugen.colors".source = "/home/yusa/.local/share/color-schemes/SkwdMatugen.colors";
+
+  environment.sessionVariables = {
+    "QT_QPA_PLATFORMTHEME" = "kde";
+    "KDE_COLOR_SCHEME" = "/home/yusa/.local/share/color-schemes/SkwdMatugen.colors";
+  };
+
+  qt = {
+    enable = true;
+    platformTheme = "kde";
+  };
+
   services.flatpak.enable = true;
   hardware.steam-hardware.enable = true;
   services.ollama.enable = true;
 
-  services.nirinit = {
-    enable = true;
-    settings = {
-      # Map app_id to launch command (useful for PWAs, flatpaks, etc.)
-      skip.apps = [ "steam" "vesktop" ];
-    };
-  };
   programs.silentSDDM = {
     enable = true;
     theme = "rei";
@@ -168,7 +201,12 @@
     jq
     appimage-run
     git
-   ];
+    polkit_gnome
+    dnsmasq
+zip
+    openrgb
+    freerdp
+    ];
 
   # INFO: Fonts
   fonts.packages = with pkgs; [

@@ -117,6 +117,7 @@
     libnotify
     xdg-utils
     matugen
+    tty-clock
   ];
 
 # INFO: Files
@@ -163,7 +164,7 @@
     enable = true;
     package = pkgs.kitty;
     settings = {
-      include = "current-theme.conf";
+      include = "skwd-theme.conf";
       font_family = "Monocraft";
       font_size = 13;
       shell = "${pkgs.fish}/bin/fish";
