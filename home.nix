@@ -4,7 +4,6 @@
 
   imports = [
     files/extra/flatpak.nix
-    files/extra/minecraft-pack.nix
   ];
 
 

@@ -8,7 +8,10 @@
   imports =
     [ # Include the results of the hardware scan.
       ./files/nix/hardware-configuration.nix
+
       ./files/extra/virtualisation.nix
+      ./files/extra/minecraft-pack.nix
+
       inputs.silentSDDM.nixosModules.default
     ];
 
