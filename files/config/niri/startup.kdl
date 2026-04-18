@@ -1,8 +1,10 @@
 spawn-sh-at-startup "awww-daemon"
 spawn-sh-at-startup "vicinae server"
 spawn-sh-at-startup "xwayland-satellite"
-spawn-sh-at-startup "mullvad connect"
 spawn-sh-at-startup "skwd-wall-daemon"
-spawn-sh-at-startup "openrgb -d 0 -c $(python3 ~/Atlas/files/bin/fix_rgb_color.py $(cat ~/Atlas/files/config/primary_color.txt | tr -d '#') )"
+spawn-sh-at-startup "sh -c \"openrgb -d 0 -c $(python3 ~/Atlas/files/bin/fix_rgb_color.py $(cat ~/Atlas/files/config/primary_color.txt | tr -d '\\#') )\""
 spawn-sh-at-startup "kitty -T btop btop"
 spawn-sh-at-startup "kitty -T clock tty-clock"
+spawn-sh-at-startup "ffplay -nodisp ~/Atlas/files/audio/startup.mp3 &"
+spawn-sh-at-startup "mullvad connect"
+

@@ -2,10 +2,10 @@
 
 {
 
-  imports = 
-    [
-      files/extra/flatpak.nix #Enable for Flatpak
-    ];
+  imports = [
+    files/extra/flatpak.nix
+    files/extra/minecraft-pack.nix
+  ];
 
 
   home.username = "yusa";
@@ -91,7 +91,6 @@
   home.packages = with pkgs; [
     git
     fastfetch firefox fish fzf
-    prismlauncher
     vesktop
     btop
     vicinae
@@ -122,12 +121,13 @@
 
 # INFO: Files
   home.file = {
-    ".icons".source                 = ./files/config/.icons;
-    ".config/nix".source            = ./files/config/nix; 
-    ".config/nvim".source           = ./files/config/nvim;
-    ".config/niri".source           = ./files/config/niri;
-    ".config/vicinae".source        = ./files/config/vicinae;
-    ".config/millennium".source     = ./files/config/millennium;
+    ".icons".source                               = ./files/config/.icons;
+    ".config/nix".source                          = ./files/config/nix; 
+    ".config/nvim".source                         = ./files/config/nvim;
+    ".config/niri".source                         = ./files/config/niri;
+    ".config/vicinae".source                      = ./files/config/vicinae;
+    ".config/millennium".source                   = ./files/config/millennium;
+    ".config/fish/functions/motivate.fish".source = ./files/bin/motivate.fish;
   };
 
   # Home Manager can also manage your environment variables through
@@ -170,12 +170,12 @@
       shell = "${pkgs.fish}/bin/fish";
       cursor_trail = 5;
       scrollback_indicator_opacity = 0;
-      window_padding_width = 0;
+      window_padding_width = 10;
       placement_strategy = "top-left";
       hide_window_decorations = "no";
       resize_debounce_time = "0 0";
       confirm_os_window_close = 0;
-      background_opacity = 1;
+      background_opacity = 0.95;
       background_blur = 1;
       allow_remote_control = "yes";
       listen_on = "unix:/tmp/kitty";
@@ -188,6 +188,10 @@
 
   programs.fish = {
     enable = true;
+    shellInit = ''
+      set -g fish_greeting
+      motivate
+    '';
   };
   systemd.user.startServices = true;
 }

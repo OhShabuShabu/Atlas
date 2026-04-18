@@ -8,7 +8,7 @@
   imports =
     [ # Include the results of the hardware scan.
       ./files/nix/hardware-configuration.nix
-      # ./extra/virtualisation.nix
+      ./files/extra/virtualisation.nix
       inputs.silentSDDM.nixosModules.default
     ];
 
@@ -17,32 +17,27 @@
     loader.systemd-boot.enable = true;
     loader.efi.canTouchEfiVariables = true; 
     initrd.luks.devices."luks-a25ffcac-804c-475f-889c-753d99a91cc6".device = "/dev/disk/by-uuid/a25ffcac-804c-475f-889c-753d99a91cc6";
+    initrd.systemd.enable = true;
+    
     plymouth = {
-      enable = false;
-      theme = "simple";
-      themePackages = [
-        (pkgs.stdenv.mkDerivation {
-          pname = "plymouth-theme-simple";
-          version = "1.0";
-          
-          src = files/config/plymouth/simple;
-
-          installPhase = ''
-            mkdir -p $out/share/plymouth/themes/simple
-            cp -r * $out/share/plymouth/themes/simple/
-            
-            substituteInPlace $out/share/plymouth/themes/simple/simple.plymouth \
-              --replace "@out@" "$out"
-          '';
-        })      
-	    ];
+      enable = true;
+      theme = "rings";
+      themePackages = with pkgs; [
+        # By default we would install all themes
+        (adi1090x-plymouth-themes.override {
+          selected_themes = [ "rings" ];
+        })
+      ];
     };
+
+
 
     consoleLogLevel = 0;
     initrd.verbose = false;
     kernelParams = [
-    #  "quiet"
-    #  "splash"
+      "video=1920x1080"
+      "quiet"
+      "splash"
       "boot.shell_on_fail"
       "loglevel=3"
       "rd.systemd.show_status=false"
@@ -137,16 +132,18 @@
   };
 
 
-  virtualisation.spiceUSBRedirection.enable = true;
+virtualisation.spiceUSBRedirection.enable = true;
 
-  virtualisation.docker.enable = true;
-  programs.niri.enable = true; 
+  programs.niri.enable = true;
   services.mullvad-vpn.enable = true;
   programs.steam = {
     enable = true;
     package = pkgs.millennium-steam;
   };
   environment.etc."xdg/color-schemes/SkwdMatugen.colors".source = "/home/yusa/.local/share/color-schemes/SkwdMatugen.colors";
+  environment.etc."distrobox/distrobox.conf".text = ''
+    container_additional_volumes="/nix/store:/nix/store:ro /etc/profiles/per-user:/etc/profiles/per-user:ro /etc/static/profiles/per-user:/etc/static/profiles/per-user:ro"
+  '';
 
   environment.sessionVariables = {
     "QT_QPA_PLATFORMTHEME" = "kde";
@@ -163,9 +160,7 @@
   services.ollama.enable = true;
 
   programs.silentSDDM = {
-    enable = true;
-    theme = "rei";
-    # settings = { ... }; see example in module
+    enable = false;
   };
 
 
@@ -203,9 +198,10 @@
     git
     polkit_gnome
     dnsmasq
-zip
+    zip
     openrgb
     freerdp
+    distrobox
     ];
 
   # INFO: Fonts
@@ -227,9 +223,21 @@ zip
       '';
     })
   ]; 
-  services.displayManager.sddm = {
-    enable = true;
-    wayland.enable = false;
+  services.displayManager = {
+    sddm = {
+      enable = true;
+      wayland.enable = false;
+      package = pkgs.kdePackages.sddm;
+      theme = "sddm-astronaut-theme";
+      extraPackages = with pkgs; [
+        sddm-astronaut
+        kdePackages.qtmultimedia
+      ];
+    };
+    autoLogin = {
+      enable = true;
+      user = "yusa";
+    };
   };
 
   # XDG Portal

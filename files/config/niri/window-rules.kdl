@@ -27,6 +27,6 @@ window-rule {
     match title="^btop$"
     open-floating true
     default-floating-position x=10 y=10 relative-to="bottom"
-    default-column-width { fixed 960; }
-    default-window-height { fixed 460; }
+    default-column-width { fixed 1000; }
+    default-window-height { fixed 600; }
 }
