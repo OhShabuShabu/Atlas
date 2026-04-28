@@ -3,10 +3,8 @@
 {
 
   imports = [
-    files/extra/flatpak.nix
+    ../extra/dev/dev.nix
   ];
-
-
   home.username = "yusa";
   home.homeDirectory = "/home/yusa";
 
@@ -24,6 +22,12 @@
     gtk3.extraConfig = { Settings = ''gtk-application-prefer-dark-theme=1''; };
     gtk4.extraConfig = { Settings = ''gtk-application-prefer-dark-theme=1''; };
   };
+  #dconf.settings = {
+  #"org/virt-manager/virt-manager/connections" = {
+  #  autoconnect = ["qemu:///system"];
+  #  uris = ["qemu:///system"];
+  #  };
+  #};
 
 
 
@@ -58,11 +62,11 @@
   "text/css" = "codium.desktop";
   "application/x-shellscript" = "codium.desktop";
   "application/x-zerosize" = "codium.desktop";
-  "text/html" = "firefox.desktop";
-  "x-scheme-handler/http" = "firefox.desktop";
+  "text/html" = "librewolf.desktop";
+  "x-scheme-handler/http" = "librewolf.desktop";
 
-  "x-scheme-handler/https" = "firefox.desktop";
-  "application/pdf" = "firefox.desktop";
+  "x-scheme-handler/https" = "librewolf.desktop";
+  "application/pdf" = "librewolf.desktop";
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document" = "chromium.desktop";
   "audio/mpeg" = "org.gnome.Decibels.desktop";
   "inode/directory" = "org.gnome.Nautilus.desktop";
@@ -89,13 +93,10 @@
 # INFO: Packages
   home.packages = with pkgs; [
     git
-    fastfetch firefox fish fzf
-    vesktop
+    fastfetch firefox nushell fzf
     btop
     vicinae
     kitty
-    opencode
-    neovim
     btop
     xwayland-satellite
     lua
@@ -114,19 +115,19 @@
     wl-clipboard
     libnotify
     xdg-utils
+    mako
     matugen
     tty-clock
   ];
 
 # INFO: Files
   home.file = {
-    ".icons".source                               = ./files/config/.icons;
-    ".config/nix".source                          = ./files/config/nix; 
-    ".config/nvim".source                         = ./files/config/nvim;
-    ".config/niri".source                         = ./files/config/niri;
-    ".config/vicinae".source                      = ./files/config/vicinae;
-    ".config/millennium".source                   = ./files/config/millennium;
-    ".config/fish/functions/motivate.fish".source = ./files/bin/motivate.fish;
+    ".icons".source                               = ../config/.icons;
+    ".config/nix".source                          = ./config/nix; 
+    ".config/niri".source                         = ../config/niri;
+    ".config/vicinae".source                      = ../config/vicinae;
+    ".config/mako/config".source                  = ../config/mako/config;
+#   ".mullvad/mullvadbrowser".source              = ../extra/mullvad;
   };
 
   # Home Manager can also manage your environment variables through
@@ -166,7 +167,7 @@
       include = "skwd-theme.conf";
       font_family = "Monocraft";
       font_size = 13;
-      shell = "${pkgs.fish}/bin/fish";
+      shell = "${pkgs.nushell}/bin/nu";
       cursor_trail = 5;
       scrollback_indicator_opacity = 0;
       window_padding_width = 10;
@@ -184,13 +185,22 @@
     };
   };
   programs.opencode.enable = true;
-
-  programs.fish = {
+ # services.mullvad-vpn.enable = true;
+  programs.nushell = {
     enable = true;
-    shellInit = ''
-      set -g fish_greeting
+    settings = {
+      show_banner = false;
+    };
+    extraConfig = ''
+      source ../bin/motivate.nu
       motivate
     '';
+  };
+
+  programs.zoxide = {
+    enable = true;
+    enableNushellIntegration = true;
+    options = ["--cmd cd"];
   };
   systemd.user.startServices = true;
 }

@@ -1,0 +1,1 @@
+def motivate [] { python3 /home/yusa/Atlas/files/bin/motivate }

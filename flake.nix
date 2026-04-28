@@ -21,13 +21,13 @@
       system = "x86_64-linux";
       specialArgs = { inherit inputs; };
       modules = [ 
-        ./configuration.nix
+        ./files/core/configuration.nix
         home-manager.nixosModules.home-manager
         {
           home-manager = {
             useGlobalPkgs = true;
             useUserPackages = true;
-            users.yusa = import ./home.nix;
+            users.yusa = import ./files/core/home.nix;
           };
         }
       ];

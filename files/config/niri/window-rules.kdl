@@ -2,6 +2,10 @@ window-rule {
     match app-id=r#"^steam$"#
     open-maximized true
 }
+window-rule {
+    match app-id=r#"^Mullvad Browser$"#
+    open-maximized true
+}
 
 window-rule {
     match app-id=r#"^org\.wezfurlong\.wezterm$"#

@@ -3,7 +3,6 @@ binds {
 
     Mod+T hotkey-overlay-title="Terminal: Kitty" { spawn "kitty"; }
     Mod+Space hotkey-overlay-title="App Launcher: vicinae" { spawn-sh "vicinae toggle"; }
-    Mod+Alt+L hotkey-overlay-title="Lock Screen: swaylock" { spawn "swaylock"; }
 
     Super+Alt+S allow-when-locked=true hotkey-overlay-title=null { spawn-sh "pkill orca || exec orca"; }
 
@@ -22,6 +21,7 @@ binds {
 
     Mod+Tab repeat=false { toggle-overview; }
     Mod+C repeat=false { close-window; }
+    Alt+F4 repeat=false { close-window; }
 
     Mod+Left  { focus-column-left; }
     Mod+Down  { focus-window-down; }
@@ -31,6 +31,10 @@ binds {
     Mod+J     { focus-window-down; }
     Mod+K     { focus-window-up; }
     Mod+L     { focus-column-right; }
+
+    Mod+N     { spawn-sh "kitty nvim"; }
+    Mod+W     { spawn "mullvad-browser"; }
+
 
     Mod+Ctrl+Left  { move-column-left; }
     Mod+Ctrl+Down  { move-window-down; }
@@ -138,7 +142,7 @@ binds {
     Mod+V       { toggle-window-floating; }
     Mod+Shift+V { switch-focus-between-floating-and-tiling; }
 
-    Mod+W { toggle-column-tabbed-display; }
+//  Mod+L { toggle-column-tabbed-display; }
 
     Print { screenshot; }
     Ctrl+Print { screenshot-screen; }

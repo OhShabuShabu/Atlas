@@ -6,11 +6,14 @@
 
 {
   imports =
-    [ # Include the results of the hardware scan.
-      ./files/nix/hardware-configuration.nix
-
-      ./files/extra/virtualisation.nix
-      ./files/extra/minecraft-pack.nix
+    [ 
+      ./hardware-configuration.nix
+      ../extra/virtualisation.nix
+      ../extra/minecraft.nix
+      ../extra/security.nix
+      ../extra/privacy/privacy.nix
+      ../extra/gaming/gaming.nix
+      ../extra/social.nix
 
       inputs.silentSDDM.nixosModules.default
     ];
@@ -57,12 +60,23 @@
   networking.hostName = "atlas"; # Define your hostname.
   networking.networkmanager.enable = true;
 
+  networking.networkmanager.dns = "none";
+
+  networking.useDHCP = false;
+  networking.dhcpcd.enable = false;
+
+  networking.nameservers = [
+    "1.1.1.1"
+    "1.0.0.1"
+    "8.8.8.8"
+    "8.8.4.4"
+  ];
+
   # Home Manager
   home-manager.useUserPackages = true;
   home-manager.useGlobalPkgs = true;
   home-manager.backupFileExtension = "backup";
 
-  nixpkgs.overlays = [ inputs.millennium.overlays.default ]; # Steam support with Millennium
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
   # Set your time zone.
@@ -100,15 +114,12 @@
   nixpkgs.config.allowUnfree = true; # Allow unfree packages
 
   # INFO: Enables
-  networking.firewall.trustedInterfaces = [ "virbr0" ];
-
   services.hardware.openrgb = { 
     enable = true; 
     package = pkgs.openrgb-with-all-plugins; 
     motherboard = "intel"; 
     server.port = 6742; 
   };
-
   
   systemd = {
     user.services.polkit-gnome-authentication-agent-1 = {
@@ -125,24 +136,8 @@
         };
     };
   };
-  programs.virt-manager.enable = true;
-
-  users.groups.libvirtd.members = ["yusa"];
-
-  virtualisation.libvirtd = {
-    enable = true;
-    qemu.vhostUserPackages = with pkgs; [ virtiofsd ];
-  };
-
-
-virtualisation.spiceUSBRedirection.enable = true;
-
   programs.niri.enable = true;
-  services.mullvad-vpn.enable = true;
-  programs.steam = {
-    enable = true;
-    package = pkgs.millennium-steam;
-  };
+
   environment.etc."xdg/color-schemes/SkwdMatugen.colors".source = "/home/yusa/.local/share/color-schemes/SkwdMatugen.colors";
   environment.etc."distrobox/distrobox.conf".text = ''
     container_additional_volumes="/nix/store:/nix/store:ro /etc/profiles/per-user:/etc/profiles/per-user:ro /etc/static/profiles/per-user:/etc/static/profiles/per-user:ro"
@@ -158,8 +153,6 @@ virtualisation.spiceUSBRedirection.enable = true;
     platformTheme = "kde";
   };
 
-  services.flatpak.enable = true;
-  hardware.steam-hardware.enable = true;
   services.ollama.enable = true;
 
   programs.silentSDDM = {
@@ -174,37 +167,25 @@ virtualisation.spiceUSBRedirection.enable = true;
     in qs.packages.${pkgs.stdenv.hostPlatform.system}.default.withModules [
       qsPkgs.qt6.qtmultimedia
     ])
-    niri
-    python3
-    curl
-    mullvad
-    waybar
     inputs.awww.packages.${pkgs.stdenv.hostPlatform.system}.awww
-    curl
-    sqlite
-    ffmpeg
-    imagemagick
-    inotify-tools
+
+    niri  python3 curl  waybar  sqlite
+    ffmpeg  imagemagick inotify-tools
     nerd-fonts.symbols-only
-    roboto
-    roboto-mono
+    roboto  roboto-mono
     material-design-icons
-    matugen
+    matugen openrgb freerdp
     wtype
     wlrctl
     linux-wallpaperengine
     ollama-rocm
-    steamcmd
     mpvpaper
     jq
     appimage-run
-    git
     polkit_gnome
-    dnsmasq
+    
     zip
-    openrgb
-    freerdp
-    distrobox
+    
     ];
 
   # INFO: Fonts
@@ -255,19 +236,19 @@ virtualisation.spiceUSBRedirection.enable = true;
 
   # INFO: Performance
   boot.kernelModules = [ "tcp_bbr" ];               # FIX: network congestion control (helps with packet jitter)
-  boot.kernel.sysctl = {
-    "net.ipv4.tcp_congestion_control" = "bbr";
-    "net.core.default_qdisc" = "fq";
-    "net.core.wmem_max" = 1073741824;
-    "net.core.rmem_max" = 1073741824;
-    "net.ipv4.tcp_rmem" = "4096 87380 1073741824";
-    "net.ipv4.tcp_wmem" = "4096 87380 1073741824";
-  };
+  #boot.kernel.sysctl = {
+  #  "net.ipv4.tcp_congestion_control" = "bbr";
+  #  "net.core.default_qdisc" = "fq";
+  #  "net.core.wmem_max" = 1073741824;
+  #  "net.core.rmem_max" = 1073741824;
+  #  "net.ipv4.tcp_rmem" = "4096 87380 1073741824";
+  #  "net.ipv4.tcp_wmem" = "4096 87380 1073741824";
+  #};
   powerManagement.cpuFreqGovernor = "performance";  # FIX: Force CPU to run at max clock speed to prevent frame-time jitter
 
   hardware.graphics = {
     enable = true;
-    enable32Bit = true; # Required for Steam/CS2
+    
   };
 
   system.stateVersion = "25.11";
