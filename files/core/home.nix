@@ -4,6 +4,7 @@
 
   imports = [
     ../extra/dev/dev.nix
+    ../extra/privacy/browser.nix
   ];
   home.username = "yusa";
   home.homeDirectory = "/home/yusa";
@@ -127,7 +128,8 @@
     ".config/niri".source                         = ../config/niri;
     ".config/vicinae".source                      = ../config/vicinae;
     ".config/mako/config".source                  = ../config/mako/config;
-#   ".mullvad/mullvadbrowser".source              = ../extra/mullvad;
+
+
   };
 
   # Home Manager can also manage your environment variables through

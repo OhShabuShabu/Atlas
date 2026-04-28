@@ -6,5 +6,10 @@
         mullvad
         mullvad-browser
     ];
+
     services.mullvad-vpn.enable = true;
+
+    system.activationScripts.createMullvadDir = ''
+        mkdir -p ~/.mullvad/mullvadbrowser/the-profile
+    '';
 }
