@@ -1,7 +1,6 @@
 { config, pkgs, lib, ... }:
 
 {
-
   imports = [
     ../extra/dev/dev.nix
     ../extra/privacy/browser.nix
@@ -93,12 +92,11 @@
   
 # INFO: Packages
   home.packages = with pkgs; [
-    git
-    fastfetch firefox nushell fzf
-    btop
+    nushell 
+    fzf
+    btop 
     vicinae
     kitty
-    btop
     xwayland-satellite
     lua
     adwaita-icon-theme
@@ -107,49 +105,24 @@
     waybar
     monocraft
     nautilus
-    rofi
-    spotify
-    spicetify-cli
-    grim
-    just
-    tesseract
-    wl-clipboard
-    libnotify
-    xdg-utils
+    #tesseract
+    #wl-clipboard
+    #libnotify
+    #xdg-utils
     mako
+    tty-clock     
     matugen
-    tty-clock
   ];
 
 # INFO: Files
   home.file = {
     ".icons".source                               = ../config/.icons;
-    ".config/nix".source                          = ./config/nix; 
     ".config/niri".source                         = ../config/niri;
     ".config/vicinae".source                      = ../config/vicinae;
     ".config/mako/config".source                  = ../config/mako/config;
-
-
+    ".config/nushell/shellrc.nu".source           = ./config/shellrc.nu;
+    ".config/nix".source                          = ./config/nix; 
   };
-
-  # Home Manager can also manage your environment variables through
-  # 'home.sessionVariables'. These will be explicitly sourced when using a
-  # shell provided by Home Manager. If you don't want to manage your shell
-  # through Home Manager then you have to manually source 'hm-session-vars.sh'
-  # located at either
-  #
-  #  ~/.nix-profile/etc/profile.d/hm-session-vars.sh
-  #
-  # or
-  #
-  #  ~/.local/state/nix/profiles/profile/etc/profile.d/hm-session-vars.sh
-  #
-  # or
-  #
-  #  /etc/profiles/per-user/yusa/etc/profile.d/hm-session-vars.sh
-  #
-
-  # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
 
   programs.git = {
@@ -187,18 +160,15 @@
     };
   };
   programs.opencode.enable = true;
- # services.mullvad-vpn.enable = true;
   programs.nushell = {
     enable = true;
     settings = {
       show_banner = false;
     };
     extraConfig = ''
-      source ../bin/motivate.nu
-      motivate
+      source ~/.config/nushell/shellrc.nu
     '';
   };
-
   programs.zoxide = {
     enable = true;
     enableNushellIntegration = true;
