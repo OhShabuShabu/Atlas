@@ -43,8 +43,12 @@
     GTK_THEME = "Adwaita-dark";
     QT_QPA_PLATFORM = "wayland;xcb";
     QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";
-    PATH = "$HOME/.local/bin:$PATH";
   };
+
+  # FIX: Use sessionPath to properly prepend to PATH
+  # home.sessionPath prepends to $PATH at shell startup
+  # NOTE: Concatenate with home.homeDirectory to avoid literal $HOME expansion
+  home.sessionPath = [ "${config.home.homeDirectory}/.local/bin" ];
 
   # Enable fontconfig for fonts
   fonts.fontconfig.enable = true;
