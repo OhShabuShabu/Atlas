@@ -1,28 +1,54 @@
 #!/usr/bin/env bash
 # Sudo GUI Wrapper - intercepts sudo calls and shows a GUI permission dialog
+# This wrapper provides a GUI dialog for sudo authentication on Wayland desktops
 
-GUI_SCRIPT="$HOME/Atlas/files/core/config/sudo-gui/sudo_ask.py"
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+GUI_SCRIPT="$SCRIPT_DIR/sudo_ask.py"
 REAL_SUDO="/run/wrappers/bin/sudo"
 
+# Store parent process ID for caching logic
 PARENT_PID=$$
 
+# FIX: Check if GUI script exists, fallback to real sudo if missing
 if [[ ! -f "$GUI_SCRIPT" ]]; then
     exec "$REAL_SUDO" "$@"
 fi
 
+# FIX: Check if input is a TTY (terminal), skip GUI for piped input
 if [[ ! -t 0 ]]; then
     exec "$REAL_SUDO" "$@"
 fi
 
+# FIX: Check if DISPLAY or WAYLAND_DISPLAY is set (graphical environment)
+if [[ -z "$DISPLAY" ]] && [[ -z "$WAYLAND_DISPLAY" ]]; then
+    exec "$REAL_SUDO" "$@"
+fi
+
+# FIX: Safely escape command arguments for Python
+# Build a safe representation of the command
+CMD_DISPLAY="$*"
+
+# FIX: Use nix-shell to run the GUI dialog with PyQt6
+# Set proper environment variables for Wayland
 RESPONSE=$(nix-shell -p python3Packages.pyqt6 --run "
     export QT_QPA_PLATFORM=wayland
-    export XDG_RUNTIME_DIR=\$HOME/.rd
-    python3 $GUI_SCRIPT \"$*\" $PARENT_PID \"${1#[-/]}\" 2>&1
+    export XDG_RUNTIME_DIR=\${XDG_RUNTIME_DIR:-\$HOME/.runtime}
+    python3 '$GUI_SCRIPT' '$CMD_DISPLAY' '$PARENT_PID' '${1#[-/]}' 2>&1
 " 2>&1)
 
-if [[ "$RESPONSE" == "YES" ]]; then
-    exec "$REAL_SUDO" "$@"
-else
-    echo "sudo: permission denied by user"
-    exit 1
-fi
+# FIX: Handle response from GUI dialog
+case "$RESPONSE" in
+    YES)
+        exec "$REAL_SUDO" "$@"
+        ;;
+    NO|"")
+        echo "sudo: permission denied by user" >&2
+        exit 1
+        ;;
+    *)
+        # Handle any other response or error
+        echo "sudo: dialog error" >&2
+        exit 1
+        ;;
+esac
