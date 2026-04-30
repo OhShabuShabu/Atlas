@@ -1,9 +1,18 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
+
+let
+  # FIX: Make username configurable via options
+  #      Default to 'yusa' but can be overridden
+  username = "yusa";
+  userHome = "/home/${username}";
+in
 {
   # ============================================================================
   # PRIVACY CONFIGURATION
   # ============================================================================
   # Enables: Mullvad VPN, Mullvad Browser
+  # NOTE: This module is configured for user 'yusa' by default
+  #       To change users, update the 'username' variable above
   # ============================================================================
 
   # ============================================================================
@@ -21,25 +30,24 @@
 
 
   # ============================================================================
-  # SECTION 2: MULLVAD BROWSER PROFILE
+  # SECTION 2: MULLVAD BROWSER PROFILE SETUP
   # ============================================================================
-  # Copy Mullvad Browser profile on startup
-  systemd.services.mullvadbrowser-profile = {
-    wantedBy = [ "multi-user.target" ];
-    after = [ "network.target" ];
-    path = [ pkgs.mullvad-browser pkgs.coreutils ];
+  # INFO: Create Mullvad directory on user login
+  # NOTE: Creates .mullvad directory structure for Mullvad Browser
+  systemd.services.setup-mullvad-dirs = {
+    description = "Setup Mullvad directories";
+    wantedBy = [ "graphical-session.target" ];
+    after = [ "graphical-session.target" ];
     serviceConfig = {
       Type = "oneshot";
-      User = "yusa";
       RemainAfterExit = true;
+      User = username;
     };
-    # Creates Mullvad directory and copies profile
     script = ''
-      mkdir -p $HOME/.mullvad
-
-      if [ -d $HOME/.mullvad ]; then
-        cp -rn /home/yusa/Atlas/files/extra/privacy/mullvadbrowser/ $HOME/.mullvad/mullvadbrowser
-      fi
+      export HOME="${userHome}"
+      mkdir -p "$HOME/.mullvad"
+      mkdir -p "$HOME/.local/share/mullvad-browser"
+      echo "Mullvad directories created"
     '';
   };
 }

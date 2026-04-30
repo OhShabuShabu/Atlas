@@ -1,10 +1,12 @@
 { config, pkgs, lib, ... }:
 
 {
+  # INFO: Home Manager imports
   imports = [
-    ../extra/dev/dev.nix
-    ../extra/privacy/browser.nix
+    ../modules/dev/dev.nix
+    # NOTE: browser.nix is empty/placeholder - browser config is in privacy/privacy.nix
   ];
+
   home.username = "yusa";
   home.homeDirectory = "/home/yusa";
 
@@ -41,6 +43,7 @@
     GTK_THEME = "Adwaita-dark";
     QT_QPA_PLATFORM = "wayland;xcb";
     QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";
+    PATH = "$HOME/.local/bin:$PATH";
   };
 
   # Enable fontconfig for fonts
@@ -81,16 +84,12 @@
   "video/mpeg" = "mpv.desktop";
   };
 
-  # This value determines the Home Manager release that your configuration is
-  # compatible with. This helps avoid breakage when a new Home Manager release
-  # introduces backwards incompatible changes.
-  #
-  # You should not change this value, even if you update Home Manager. If you do
-  # want to update the value, then make sure to first check the Home Manager
-  # release notes.
-  home.stateVersion = "25.05"; # Please read the comment before changing.
+  # FIX: Updated to match system stateVersion for consistency
+  #      Home Manager release that your configuration is compatible with
+  home.stateVersion = "25.11";
   
 # INFO: Packages
+  # NOTE: libnotify is required for notify-send in ClamAV and other notifications
   home.packages = with pkgs; [
     nushell 
     fzf
@@ -105,13 +104,14 @@
     waybar
     monocraft
     nautilus
-    #tesseract
-    #wl-clipboard
-    #libnotify
-    #xdg-utils
+    libnotify
+    wl-clipboard
+    xdg-utils
     mako
     tty-clock     
     matugen
+    python3
+    python3Packages.pyqt6
   ];
 
 # INFO: Files
@@ -122,6 +122,8 @@
     ".config/mako/config".source                  = ../config/mako/config;
     ".config/nushell/shellrc.nu".source           = ./config/shellrc.nu;
     ".config/nix".source                          = ./config/nix; 
+    ".local/bin/sudo".source                     = ./config/sudo-gui/sudo;
+    ".local/bin/sudo_ask.py".source             = ./config/sudo-gui/sudo_ask.py;
   };
   programs.home-manager.enable = true;
 

@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# Sudo GUI Wrapper - intercepts sudo calls and shows a GUI permission dialog
+
+GUI_SCRIPT="$HOME/Atlas/files/core/config/sudo-gui/sudo_ask.py"
+REAL_SUDO="/run/wrappers/bin/sudo"
+
+PARENT_PID=$$
+
+if [[ ! -f "$GUI_SCRIPT" ]]; then
+    exec "$REAL_SUDO" "$@"
+fi
+
+if [[ ! -t 0 ]]; then
+    exec "$REAL_SUDO" "$@"
+fi
+
+RESPONSE=$(nix-shell -p python3Packages.pyqt6 --run "
+    export QT_QPA_PLATFORM=wayland
+    export XDG_RUNTIME_DIR=\$HOME/.rd
+    python3 $GUI_SCRIPT \"$*\" $PARENT_PID \"${1#[-/]}\" 2>&1
+" 2>&1)
+
+if [[ "$RESPONSE" == "YES" ]]; then
+    exec "$REAL_SUDO" "$@"
+else
+    echo "sudo: permission denied by user"
+    exit 1
+fi

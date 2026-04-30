@@ -57,9 +57,6 @@
     # Distrobox for containerized development environments
     distrobox
 
-    # DNS for libvirt networking
-    dnsmasq
-
     # Docker tools
     docker
     docker-compose
