@@ -86,11 +86,10 @@ in
       "udev.log_priority=3"
 
       # CPU performance tuning
-      "amd_pstate=active"
+      "intel_pstate=active"
+      "i915.enable_guc=2"
       "tsc=reliable"
 
-      # Hardware-specific (ASUS laptops)
-      "asus_wmi"
     ];
   };
 
@@ -169,19 +168,7 @@ in
   # SECTION 6: X SERVER & DESKTOP
   # ============================================================================
   # Enable X server
-  services.xserver.enable = true;
-
-  # Use AMD GPU drivers
-  services.xserver.videoDrivers = [ "amd" ];
-
-  # Keyboard layout
-  services.xserver.xkb = {
-    layout = "us";
-    variant = "";
-  };
-
-  # Exclude xterm
-  services.xserver.excludePackages = [ pkgs.xterm];
+  # Wayland compositor (Niri) - X server not needed
 
 
 # ============================================================================
@@ -281,7 +268,12 @@ in
 
   # FIX: Protect /proc from unprivileged access
   #      Hide processes from non-privileged users
-  boot.kernel.sysctl."fs.protected_proc" = "noaccess";
+  # NOTE: Use hidepid mount option instead of invalid fs.protected_proc sysctl
+  fileSystems."/proc" = {
+    device = "proc";
+    fsType = "proc";
+    options = [ "nosuid" "noexec" "nodev" "hidepid=2" ];
+  };
 
   # ============================================================================
   # SECTION 9E: LOGGING AND PAM HARDENING
@@ -374,7 +366,7 @@ in
   services.displayManager = {
     sddm = {
       enable = true;
-      wayland.enable = false;
+      wayland.enable = true;
       package = pkgs.kdePackages.sddm;
       theme = "sddm-astronaut-theme";
       extraPackages = with pkgs; [

@@ -24,11 +24,9 @@
   # NOTE: Keep essential services working while adding protection
   systemd.services = {
     # INFO: Systemd journald - log management
+    # WARN: Keep journald minimal - aggressive hardening can break boot logging
     systemd-journald.serviceConfig = {
-      ProtectSystem = "full";
       PrivateTmp = true;
-      # FIX: Additional hardening
-      ProtectHome = true;
       NoNewPrivileges = true;
     };
 
@@ -62,17 +60,20 @@
     };
     
     # FIX: Harden systemd-udevd (device manager) (BOOT-5264)
-    systemd-udevd.serviceConfig = {
-      PrivateTmp = true;
-      NoNewPrivileges = true;
-    };
+    # WARN: DO NOT HARDEN UDEVd - it manages block device discovery
+    # Including /boot's disk. Hardening breaks early boot mounting.
+    # systemd-udevd.serviceConfig = {
+    #   PrivateTmp = true;
+    #   NoNewPrivileges = true;
+    # };
     
     # FIX: Harden audit daemon (BOOT-5264)
-    auditd.serviceConfig = {
-      PrivateTmp = true;
-      ProtectSystem = "strict";
-      ProtectHome = true;
-    };
+    # WARN: Avoid strict ProtectSystem on auditd - can break early boot
+    # auditd.serviceConfig = {
+    #   PrivateTmp = true;
+    #   ProtectSystem = "strict";
+    #   ProtectHome = true;
+    # };
   };
 
   # FIX: Document service hardening best practices

@@ -7,12 +7,13 @@
 
 {
   imports = [
-    ./firewall.nix
     ./kernel-sysctl.nix
     ./kernel-boot.nix
+    ./firewall.nix
+    ./banner.nix
+
     ./service-hardening.nix
     ./telemetry.nix
-    ./banner.nix
     ./password-policy.nix
     ./network-privacy.nix
     ./aide.nix
