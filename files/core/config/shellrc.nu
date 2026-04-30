@@ -3,7 +3,7 @@
     # =============================================================================
     # This file is sourced by Nushell on startup
 
-    $env.PATH = ($env.PATH | append "$HOME/.local/bin")
+    #$env.PATH = ($env.PATH | append "$HOME/.local/bin")
 
     # INFO: ALIASES
     alias motivate = python3 /home/yusa/Atlas/files/bin/python/motivate

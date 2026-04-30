@@ -23,9 +23,6 @@ in
     # INFO: Security modules (imports submodules automatically)
     ../modules/security/default.nix
 
-    # INFO: Sudo GUI wrapper module
-    ../modules/sudo-gui.nix
-
     # INFO: Performance module
     ../modules/performance.nix
 

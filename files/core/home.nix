@@ -114,8 +114,6 @@
     mako
     tty-clock     
     matugen
-    python3
-    python3Packages.pyqt6
   ];
 
 # INFO: Files
@@ -126,8 +124,6 @@
     ".config/mako/config".source                  = ../config/mako/config;
     ".config/nushell/shellrc.nu".source           = ./config/shellrc.nu;
     ".config/nix".source                          = ./config/nix; 
-    ".local/bin/sudo".source                     = ./config/sudo-gui/sudo;
-    ".local/bin/sudo_ask.py".source             = ./config/sudo-gui/sudo_ask.py;
   };
   programs.home-manager.enable = true;
 
@@ -140,16 +136,7 @@
       };
     };
   };
-
-  # FIX: Configure bash to prepend ~/.local/bin to PATH
-  programs.bash = {
-    enable = true;
-    initExtra = ''
-      # Prepend ~/.local/bin to PATH for sudo-gui wrapper
-      export PATH="$HOME/.local/bin:$PATH"
-    '';
-  };
-
+  
   programs.kitty = {
     enable = true;
     package = pkgs.kitty;
@@ -181,8 +168,6 @@
       show_banner = false;
     };
     extraConfig = ''
-      # FIX: Prepend ~/.local/bin to PATH for sudo-gui wrapper
-      $env.PATH = ($env.PATH | split row (char esep) | prepend $"($env.HOME)/.local/bin" | str join (char esep))
       source ~/.config/nushell/shellrc.nu
     '';
   };
