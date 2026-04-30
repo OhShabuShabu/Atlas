@@ -141,6 +141,15 @@
     };
   };
 
+  # FIX: Configure bash to prepend ~/.local/bin to PATH
+  programs.bash = {
+    enable = true;
+    initExtra = ''
+      # Prepend ~/.local/bin to PATH for sudo-gui wrapper
+      export PATH="$HOME/.local/bin:$PATH"
+    '';
+  };
+
   programs.kitty = {
     enable = true;
     package = pkgs.kitty;
@@ -172,6 +181,8 @@
       show_banner = false;
     };
     extraConfig = ''
+      # FIX: Prepend ~/.local/bin to PATH for sudo-gui wrapper
+      $env.PATH = ($env.PATH | split row (char esep) | prepend $"($env.HOME)/.local/bin" | str join (char esep))
       source ~/.config/nushell/shellrc.nu
     '';
   };
