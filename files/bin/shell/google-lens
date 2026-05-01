@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Google Lens - Image Recognition Tool
+# Usage: google-lens [image_path] [options]
+
+set -euo pipefail
+
+exec python3 "${BASH_SOURCE%/*}/../../../bin/python/google_lens.py" "$@"

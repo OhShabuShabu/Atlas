@@ -350,6 +350,9 @@ in
   environment.sessionVariables = {
     "QT_QPA_PLATFORMTHEME" = "kde";
     "KDE_COLOR_SCHEME" = "/home/yusa/.local/share/color-schemes/SkwdMatugen.colors";
+    XDG_CURRENT_DESKTOP = "niri";
+    XDG_SESSION_TYPE = "wayland";
+    XDG_SESSION_DESKTOP = "niri";
   };
 
   # Qt configuration
@@ -388,9 +391,30 @@ in
   # XDG portal for Flatpak support
   xdg.portal = {
     enable = true;
+    xdgOpenUsePortal = true;
     extraPortals = with pkgs; [
       xdg-desktop-portal-gtk
+      xdg-desktop-portal-wlr
+      xdg-desktop-portal-gnome
     ];
+    config = {
+      niri = {
+        default = [ "gnome" "wlr" "gtk" ];
+        "org.freedesktop.impl.portal.ScreenCast" = [ "gnome" "wlr" ];
+        "org.freedesktop.impl.portal.Screenshot" = [ "wlr" ];
+      };
+    };
+  };
+
+
+  # ============================================================================
+  # SECTION 15: AUDIO (PIPEWIRE)
+  # ============================================================================
+  services.pipewire = {
+    enable = true;
+    alsa.enable = true;
+    alsa.support32Bit = true;
+    pulse.enable = true;
   };
 
 
@@ -446,6 +470,7 @@ in
     polkit_gnome
     zip
     libpwquality
+    nautilus
 
     # Graphical authentication (polkit-style popup)
     kdePackages.kde-cli-tools

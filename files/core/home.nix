@@ -4,6 +4,7 @@
   # INFO: Home Manager imports
   imports = [
     ../modules/dev/dev.nix
+    ../modules/tools.nix
     # NOTE: browser.nix is empty/placeholder - browser config is in privacy/privacy.nix
   ];
 
