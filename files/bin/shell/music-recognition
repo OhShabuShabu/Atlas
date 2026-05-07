@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-# Music Recognition - Song Identification Tool
-# Usage: music-recognition [command] [options]
-
-set -euo pipefail
-
-exec python3 "${BASH_SOURCE%/*}/../../../bin/python/music_recognition.py" "$@"

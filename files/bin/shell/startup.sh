@@ -1,4 +1,4 @@
-awww-daemon &
+awww-daemon --quiet &
 vicinae server 2>/dev/null &
 xwayland-satellite 2>/dev/null &
 skwd-wall-daemon &

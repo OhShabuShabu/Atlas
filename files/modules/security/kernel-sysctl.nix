@@ -74,7 +74,7 @@ let
     "net.core.bpf_jit_harden" = 2;            # FIX: Hardens BPF JIT (from hardened profile)
     "net.ipv4.conf.all.log_martians" = 1;
     "net.ipv4.conf.default.log_martians" = 1;
-    "kernel.yama.ptrace_scope" = 2;           # INFO: Restrict ptrace (now default in NixOS 25.05+)
+    "kernel.yama.ptrace_scope" = 1;           # INFO: Allow parent-child ptrace (required by Sober/Flatpak)
   };
 
   # INFO: Filesystem protection

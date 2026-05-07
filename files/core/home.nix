@@ -44,6 +44,7 @@
     GTK_THEME = "Adwaita-dark";
     QT_QPA_PLATFORM = "wayland;xcb";
     QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";
+    MANGOHUD = "1";
   };
 
   # FIX: Use sessionPath to properly prepend to PATH
@@ -178,4 +179,9 @@
     options = ["--cmd cd"];
   };
   systemd.user.startServices = true;
+
+  # Create awww cache directory to prevent cache warnings
+  home.activation.createAwwwCache = lib.hm.dag.entryAfter ["writeBoundary"] ''
+    mkdir -p $HOME/.cache/awww
+  '';
 }

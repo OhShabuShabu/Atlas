@@ -16,6 +16,10 @@
 
     # Steam command-line tool
     steamcmd
+
+    # FPS overlay (RivaTuner alternative)
+    mangohud
+    goverlay
   ];
 
   # Enable Millennium overlay (custom Steam theming)

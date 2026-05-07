@@ -23,7 +23,7 @@ let
     "debugfs=off"                        # INFO: Disable debugfs
     "oops=panic"                        # INFO: Panic on oops
     "module.sig_enforce=1"               # INFO: Enforce module signatures
-    "lockdown=confidentiality"          # INFO: Kernel lockdown
+    "lockdown=integrity"             # FIX: Allow hardware I/O for OpenRGB and similar tools
     # FIX: Additional boot params from hardened profile
     "slab_merge=off"                    # INFO: Explicitly disable slab merging
   ];

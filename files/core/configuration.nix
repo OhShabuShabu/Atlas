@@ -2,8 +2,8 @@
 # ATLAS SYSTEM CONFIGURATION
 # ============================================================================
 # Main NixOS configuration file - imports all module components
-# NOTE: This configuration follows NixOS best practices for security, 
-#       privacy, and desktop use.
+# This configuration follows NixOS best practices for security,
+# privacy, and desktop use.
 # ============================================================================
 
 { config, pkgs, lib, inputs, ... }:
@@ -463,6 +463,9 @@ in
 
     # Media
     mpvpaper
+    helvum
+    pavucontrol
+    easyeffects
 
     # Utilities
     jq
@@ -471,6 +474,8 @@ in
     zip
     libpwquality
     nautilus
+    yazi
+    exiftool
 
     # Graphical authentication (polkit-style popup)
     kdePackages.kde-cli-tools
@@ -478,7 +483,7 @@ in
 
     # INFO: Security auditing tools (from lynis recommendations)
     # NOTE: Package audit tool for vulnerability detection
-    # vulnix  # Uncomment if needed - can be resource intensive
+    vulnix  # Uncomment if needed - can be resource intensive
   ];
 
   # ============================================================================
