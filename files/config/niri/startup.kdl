@@ -1,0 +1,1 @@
+spawn-sh-at-startup "sh /home/yusa/Atlas/files/bin/shell/startup.sh"

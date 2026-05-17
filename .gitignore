@@ -1,0 +1,24 @@
+*.log
+*.lock
+
+# Nix/NixOS build artifacts
+result
+result-*
+.envrc
+.direnv
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets
+*. age
+
+# Temporary
+tmp/
+temp/
+*.tmp
