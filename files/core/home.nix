@@ -156,6 +156,33 @@
     };
   };
   
+  programs.noctalia-shell = {
+    enable = true;
+    settings = {
+      bar = {
+        position = "top";
+        widgets = {
+          left = [
+            { id = "Launcher"; }
+            { id = "Clock"; }
+          ];
+          center = [
+            { id = "Workspace"; }
+          ];
+          right = [
+            { id = "Tray"; }
+            { id = "Volume"; }
+            { id = "ControlCenter"; }
+          ];
+        };
+      };
+      general.avatarImage = "";
+      notifications.enabled = true;
+      osd.enabled = true;
+      colorSchemes.predefinedScheme = "Catppuccin Mocha";
+    };
+  };
+
   programs.opencode.enable = true;
   programs.nushell = {
     enable = true;

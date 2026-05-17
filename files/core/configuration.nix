@@ -339,16 +339,10 @@ in
 
 
   # ============================================================================
-  # SECTION 11: NOCTALIA SHELL CONFIGURATION
+  # SECTION 11: NOCTALIA SHELL
   # ============================================================================
-  # Noctalia is a sleek Wayland desktop shell built with Quickshell.
-  # It replaces Waybar for the status bar and desktop shell experience.
-  # The NixOS module provides a systemd user service bound to
-  # graphical-session.target.
-  services.noctalia-shell = {
-    enable = true;
-    package = noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default;
-  };
+  # Noctalia is configured via home-manager (programs.noctalia-shell).
+  # Systemd startup is deprecated - the shell is spawned from Niri config.
 
   # ============================================================================
   # SECTION 12: QT & THEME SETTINGS
@@ -443,6 +437,7 @@ in
   environment.systemPackages = with pkgs; [
     # Desktop components
     niri
+    inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default
     python3
     curl
     sqlite
