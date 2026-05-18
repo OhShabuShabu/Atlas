@@ -263,7 +263,7 @@ in
   security.auditd.enable = true;
 
   systemd.services.audit-rules-nixos.serviceConfig = {
-    ExecStart = lib.mkForce "${pkgs.bash}/bin/sh -c '${pkgs.audit}/bin/auditctl -D && ${pkgs.audit}/bin/auditctl -R ${pkgs.writeTextDir "audit.rules" ''
+    ExecStart = lib.mkForce "${pkgs.bash}/bin/sh -c \"${pkgs.audit}/bin/auditctl -D && ${pkgs.audit}/bin/auditctl -R ${pkgs.writeTextDir "audit.rules" ''
       -a always,exit -F arch=b64 -S adjtimex -S settimeofday -k time_change
       -a always,exit -F arch=b64 -S clock_settime -k time_change
       -w /etc/localtime -p wa -k time_change
@@ -281,9 +281,6 @@ in
       -w /var/log/tallylog -p wa -k logins
       -w /etc/sudoers -p wa -k scope
       -w /etc/sudoers.d/ -p wa -k scope
-      -w /sbin/insmod -p x -k modules
-      -w /sbin/rmmod -p x -k modules
-      -w /sbin/modprobe -p x -k modules
       -a always,exit -F arch=b64 -S init_module,delete_module -k modules
       -a always,exit -F arch=b64 -S chmod -F auid>=1000 -F auid!=-1 -k perm_mod
       -a always,exit -F arch=b64 -S chown -F auid>=1000 -F auid!=-1 -k perm_mod
@@ -292,7 +289,7 @@ in
       -a always,exit -F arch=b64 -S open,openat -F exit=-EACCES -F auid>=1000 -F auid!=-1 -k access
       -a always,exit -F arch=b64 -S open,openat -F exit=-EPERM -F auid>=1000 -F auid!=-1 -k access
       -e 2
-    ''}/audit.rules'";
+    ''}/audit.rules\"";
     ExecStopPost = lib.mkForce [ "${pkgs.coreutils}/bin/true" ];
   };
 
