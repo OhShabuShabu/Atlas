@@ -263,7 +263,7 @@ in
   security.auditd.enable = true;
 
   systemd.services.audit-rules-nixos.serviceConfig = {
-    ExecStart = lib.mkForce "${pkgs.audit}/bin/auditctl -D && ${pkgs.audit}/bin/auditctl -R ${pkgs.writeTextDir "audit.rules" ''
+    ExecStart = lib.mkForce "${pkgs.bash}/bin/sh -c '${pkgs.audit}/bin/auditctl -D && ${pkgs.audit}/bin/auditctl -R ${pkgs.writeTextDir "audit.rules" ''
       -a always,exit -F arch=b64 -S adjtimex -S settimeofday -k time_change
       -a always,exit -F arch=b64 -S clock_settime -k time_change
       -w /etc/localtime -p wa -k time_change
@@ -292,7 +292,7 @@ in
       -a always,exit -F arch=b64 -S open,openat -F exit=-EACCES -F auid>=1000 -F auid!=-1 -k access
       -a always,exit -F arch=b64 -S open,openat -F exit=-EPERM -F auid>=1000 -F auid!=-1 -k access
       -e 2
-    ''}/audit.rules";
+    ''}/audit.rules'";
     ExecStopPost = lib.mkForce [ "${pkgs.coreutils}/bin/true" ];
   };
 
