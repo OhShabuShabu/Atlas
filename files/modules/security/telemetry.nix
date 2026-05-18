@@ -9,18 +9,20 @@
         logrotate.enable = true;
         journald = {
             # Store logs in memory (prevents disk-based forensics)
+            # NOTE: Use RuntimeMaxUse/RuntimeMaxFileSize for volatile storage
             storage = "volatile";
             upload.enable = false;
             extraConfig = ''
-                SystemMaxUse=500M
-                SystemMaxFileSize=50M
+                RuntimeMaxUse=500M
+                RuntimeMaxFileSize=50M
             '';
         };
 
         # Disable telemetry services
         avahi.enable = false;
         geoclue2.enable = false;
-        udisks2.enable = false;
+        # NOTE: udisks2 needed for SDDM and desktop functionality
+        # udisks2.enable = false;
         accounts-daemon.enable = false;
     };
 

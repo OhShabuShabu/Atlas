@@ -56,7 +56,9 @@ let
     "net.ipv4.conf.all.send_redirects" = 0;
     "net.ipv4.conf.default.send_redirects" = 0;
     "net.ipv4.icmp_echo_ignore_all" = 1;       # INFO: Ignore ICMP echo requests
-    "net.ipv4.conf.all.forwarding" = 0;       # INFO: Disable IP forwarding
+    # WARN: Docker and libvirt override this to 1 at runtime via mkForce
+    #       Setting mkDefault so Docker/libvirt can override without conflict
+    "net.ipv4.conf.all.forwarding" = 0;       # INFO: Disable IP forwarding (overridden by Docker/libvirt)
     "net.ipv6.conf.all.forwarding" = 0;
     "net.ipv4.conf.default.accept_source_route" = 0;  # INFO: Disable source routing
     "net.ipv4.conf.all.accept_source_route" = 0;
@@ -75,6 +77,36 @@ let
     "net.ipv4.conf.all.log_martians" = 1;
     "net.ipv4.conf.default.log_martians" = 1;
     "kernel.yama.ptrace_scope" = 1;           # INFO: Allow parent-child ptrace (required by Sober/Flatpak)
+  };
+
+  # INFO: Extended hardening from latest NixOS hardened profile
+  # NOTE: Provides defense-in-depth beyond standard Lynis recommendations
+  extendedHardening = {
+    # FIX: ARP security - ignore unsolicited ARP replies
+    "net.ipv4.conf.all.arp_ignore" = 1;
+    "net.ipv4.conf.all.arp_announce" = 2;
+    "net.ipv4.conf.all.arp_filter" = 1;
+    # FIX: Disable shared media for routing security
+    "net.ipv4.conf.all.shared_media" = 0;
+    "net.ipv4.conf.default.shared_media" = 0;
+    # FIX: TCP SYN flood protection
+    "net.ipv4.tcp_syncookies" = 1;            # Already set above - reinforcing
+    "net.ipv4.tcp_syn_retries" = 3;
+    "net.ipv4.tcp_synack_retries" = 3;
+    "net.ipv4.tcp_max_syn_backlog" = 2048;
+    # FIX: Disable TCP timestamps (info leak reduction)
+    "net.ipv4.tcp_timestamps" = 0;
+    # FIX: Kernel panic behaviour
+    "kernel.panic" = 10;
+    "kernel.panic_on_oops" = 1;
+    "kernel.panic_on_unrecovered_nmi" = 1;
+    "kernel.panic_on_io_nmi" = 1;
+    # FIX: Restrict ksm (Kernel Same-page Merging - attack surface)
+    "kernel.ksm.max_kernel_pages" = 0;
+    # FIX: Disable ksm merging for security
+    "kernel.ksm.use_zero_pages" = 0;
+    # FIX: Disable NFS caching
+    "net.core.optmem_max" = 0;
   };
 
   # INFO: Filesystem protection
@@ -103,8 +135,8 @@ in
 {
   # INFO: Merge all kernel sysctl settings
   boot.kernel.sysctl = memorySettings // kernelProtection // exploitMitigation 
-    // networkSettings // lynisSettings // filesystemSettings // tcpOptimization
-    // userNamespaceSettings;
+    // networkSettings // lynisSettings // extendedHardening // filesystemSettings
+    // tcpOptimization // userNamespaceSettings;
 
   # INFO: LSM (Linux Security Modules) - now defaults to landlock,yama,bpf in NixOS 25.05+
   # NOTE: We explicitly configure this to ensure it's set correctly

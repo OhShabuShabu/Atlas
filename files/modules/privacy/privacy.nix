@@ -22,8 +22,16 @@ in
     exiftool
     inotify-tools
     notifyUser
+    nftables
   ];
   services.mullvad-vpn.enable = true;
+  systemd.services.mullvad-daemon = {
+    path = [ pkgs.nftables ];
+    after = [ "network.target" "network-online.target" ];
+    serviceConfig = {
+      AmbientCapabilities = "CAP_NET_ADMIN";
+    };
+  };
 
   systemd.services.metadata-cleaner = {
     description = "Strip GPS and identifying metadata from media files in /home";

@@ -76,6 +76,51 @@
     # };
   };
 
+  # FIX: Harden NetworkManager
+  # WARN: Do NOT add PrivateNetwork (needs to manage interfaces)
+  systemd.services.NetworkManager.serviceConfig = {
+    NoNewPrivileges = true;
+    PrivateTmp = true;
+    ProtectSystem = "strict";
+    ProtectHome = true;
+    ProtectKernelTunables = true;
+    ProtectKernelModules = true;
+  };
+
+  # FIX: Harden polkit
+  systemd.services.polkit.serviceConfig = {
+    NoNewPrivileges = true;
+    PrivateTmp = true;
+    ProtectSystem = "strict";
+    ProtectHome = true;
+  };
+
+  # FIX: Harden cups (print service - minimal needed to run)
+  systemd.services.cups.serviceConfig = {
+    NoNewPrivileges = true;
+    PrivateTmp = true;
+    ProtectSystem = "strict";
+    ProtectHome = true;
+  };
+
+  # FIX: Harden OpenSSH if enabled
+  systemd.services.sshd.serviceConfig = {
+    NoNewPrivileges = true;
+    PrivateTmp = true;
+    PrivateNetwork = true;
+    ProtectSystem = "strict";
+    ProtectHome = true;
+  };
+
+  # FIX: Harden nginx if enabled
+  systemd.services.nginx.serviceConfig = {
+    NoNewPrivileges = true;
+    PrivateTmp = true;
+    PrivateNetwork = true;
+    ProtectSystem = "strict";
+    ProtectHome = true;
+  };
+
   # FIX: Document service hardening best practices
   environment.etc."security/service-hardening-notes.txt".text = ''
     # Service Hardening Guidelines (Lynis BOOT-5264)

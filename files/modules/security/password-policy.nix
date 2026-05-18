@@ -1,14 +1,13 @@
-{ lib, ... }:
-{
+{ lib, pkgs, ... }: {
     # ============================================================================
     # SECTION 8: PASSWORD POLICY
     # ============================================================================
+    # NOTE: pam_passwdqc can be added via security.pam.services.<name>.text
+    #       if desired (Lynis AUTH-9262). Current policy manages strength
+    #       through login.defs settings (PASS_MIN_LEN, YESCRYPT).
+
     # INFO: Disable GNOME keyring (security preference)
-    security.pam = {
-        services = {
-            login.enableGnomeKeyring = lib.mkForce false;
-        };
-    };
+    security.pam.services.login.enableGnomeKeyring = lib.mkForce false;
 
     # INFO: Password aging and quality settings
     security.loginDefs.settings = {
@@ -30,6 +29,4 @@
         SHA_CRYPT_MAX_ROUNDS = "10000";
     };
 
-    # INFO: Restrict default umask for new files
-    systemd.services."systemd-logind".serviceConfig.UMask = "0027";
 }

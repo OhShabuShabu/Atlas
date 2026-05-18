@@ -9,7 +9,7 @@ A personalized NixOS 25.11 configuration built with Home Manager, featuring the 
 | **WM** | [Niri](https://github.com/YaLTeR/niri) (scrolling Wayland compositor) |
 | **Shell** | [Noctalia](https://github.com/noctalia-dev/noctalia-shell) (Wayland desktop shell) |
 | **Display Manager** | SDDM (astronaut theme, auto-login) |
-| **Terminal** | [Kitty](https://sw.kovidgoyal.net/kitty/) with Nushell |
+| **Terminal** | [Ghostty](https://ghostty.org/) with Nushell |
 | **Editor** | Neovim (LazyVim), opencode |
 
 ## Features
@@ -32,10 +32,10 @@ A personalized NixOS 25.11 configuration built with Home Manager, featuring the 
 - **Mullvad VPN** with auto-connect + **Mullvad Browser**
 - **Librewolf** as default browser
 - **Lynis** security auditing
-- **ClamAV** daemon with daily scans, real-time quarantine monitoring, and desktop notifications
+- **ClamAV** daemon with daily scans, auto-quarantine of detected threats, and desktop notifications
 - **Snout** — security monitoring daemon that watches /etc/quarantine and integrates with ClamAV
 - **AIDE** file integrity monitoring with daily checks
-- **Quarantine** — sandboxed, locked-down directory at /etc/quarantine with noexec,nosuid,nodev
+- **Quarantine** — sandboxed, locked-down directory at /etc/quarantine with 0000 permissions, chattr +a, noexec,nosuid,nodev bind mount, and automatic shredding at shutdown
 - Extensive kernel hardening (sysctl, locked modules, disabled protocols)
 - Systemd service sandboxing with security profiles
 - LUKS full-disk encryption
@@ -67,16 +67,13 @@ atlas/
     │   └── hardware-configuration.nix  # Hardware-specific settings
     ├── config/
     │   ├── niri/                       # WM config (keybinds, layout, animations)
-    │   ├── mako/                       # Notification daemon config
     │   ├── vicinae/                    # Launcher config
-    │   ├── plymouth/                   # Boot splash theme
     │   └── .icons/                     # Cursor themes
     ├── modules/
     │   ├── security/                   # Snout, ClamAV, AIDE, auditd, kernel, firewall
     │   ├── dev/                        # Neovim, development tools
     │   ├── gaming/                     # Steam, Millennium theming
     │   ├── privacy/                    # Mullvad VPN + browser
-    │   ├── social.nix                  # Vesktop, Telegram
     │   ├── flatpak.nix                 # Flatpak packages
     │   └── minecraft.nix               # PrismLauncher config
     ├── audio/                          # Sound effects
@@ -106,15 +103,21 @@ The Snout security monitoring daemon runs as a systemd service and:
 
 ### Quarantine
 The /etc/quarantine directory is sandboxed with:
-- Permissions 0700 (root only)
-- Bind-mounted with noexec, nosuid, nodev
+- Permissions 0700 (root only), `chattr +a` (append-only — prevents rename/delete)
+- Files inside get **0000 permissions** (no read/write/execute for anyone)
+- Bound-mounted with noexec, nosuid, nodev
+- Watched by a **quarantine-sanitizer** daemon that instantly strips permissions on new files
+- **Shredded and wiped at every shutdown** via quarantine-cleanup systemd service
 - Automatically monitored by Snout + ClamAV
 
 ### ClamAV Daemon
 - Enabled as a persistent daemon with automatic updates
 - Daily system scans at 3:00 AM with randomized delay
-- Separate quarantine directory scanning
+- **Auto-quarantines** detected threats: `clamscan --move=/etc/quarantine`
+- Post-scan sanitization: quarantined files are immediately set to **0000 permissions**
+- Separate quarantine verification scan
 - Desktop notifications on threat detection and clean scans
+- Daemon hardened with `PrivateNetwork=true`
 
 ### File Integrity (AIDE)
 - Monitors /bin, /sbin, /usr, /etc, /var/lib
@@ -158,8 +161,9 @@ trash list              # List trashed files
 trash restore <file>    # Restore from trash
 
 # Quarantine
-sudo ls -la /etc/quarantine               # List quarantined files
-sudo trash put /etc/quarantine/<file>     # Remove from quarantine
+quarantine-list                           # List quarantined files
+quarantine-purge                          # Securely shred and purge all files
+sudo ls -la /etc/quarantine               # Direct listing (root only)
 ```
 
 ## Applications
@@ -168,7 +172,7 @@ sudo trash put /etc/quarantine/<file>     # Remove from quarantine
 |----------|----------|
 | **Browsers** | Librewolf (default), Mullvad Browser |
 | **Gaming** | Steam (Millennium-themed), PrismLauncher, Blockbench |
-| **Social** | Vesktop (Discord), Telegram Desktop |
+| **Social** | (_via Flatpak_) |
 | **Media** | mpv, mpvpaper, linux-wallpaperengine, imv |
 | **Dev** | Neovim (LazyVim), opencode, claude-code, bun |
 | **Security** | Snout, ClamAV, AIDE, Lynis, auditd |
@@ -181,7 +185,7 @@ sudo trash put /etc/quarantine/<file>     # Remove from quarantine
 | GTK | Adwaita-dark |
 | Icons | Papirus-Dark |
 | Fonts | Monocraft, Roboto, Nerd Fonts, Material Design Icons |
-| Cursors | oreo_black_cursors, QingyiBLZ |
+| Cursors | oreo_black_cursors |
 | Colors | Matugen (generated from wallpaper) |
 | Shell | Noctalia (Catppuccin Mocha theme) |
 

@@ -11,8 +11,20 @@
   # NOTE: psacct provides process accounting tools
   environment.systemPackages = with pkgs; [
     # INFO: Process accounting utilities
-    psacct  # INFO: Main process accounting tools
+    acct  # INFO: Main process accounting tools
   ];
+
+  # FIX: Enable process accounting daemon (ACCT-9622)
+  systemd.services.acct = {
+    description = "Process accounting daemon";
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      ExecStart = "${pkgs.acct}/bin/accton /var/account/pacct";
+      ExecStop = "${pkgs.acct}/bin/accton";
+    };
+  };
 
   # FIX: Configure process accounting with proper logging (ACCT-9622)
   systemd.tmpfiles.rules = [

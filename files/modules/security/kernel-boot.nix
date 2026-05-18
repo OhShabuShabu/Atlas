@@ -21,11 +21,18 @@ let
     "randomize_kstack_offset=on"         # INFO: Randomize kernel stack
     "vsyscall=none"                     # INFO: Disable vsyscalls
     "debugfs=off"                        # INFO: Disable debugfs
-    "oops=panic"                        # INFO: Panic on oops
-    "module.sig_enforce=1"               # INFO: Enforce module signatures
-    "lockdown=integrity"             # FIX: Allow hardware I/O for OpenRGB and similar tools
-    # FIX: Additional boot params from hardened profile
+    # NOTE: oops=panic disabled - GPU drivers trigger non-fatal oops on newer kernels
+    # "oops=panic"                        # INFO: Panic on oops
+    # NOTE: lockdown disabled - prevents GPU driver and display from working on unstable
+    # "lockdown=integrity"             # INFO: Kernel lockdown - prevents unsigned module loading
     "slab_merge=off"                    # INFO: Explicitly disable slab merging
+    # FIX: Additional boot hardening
+    "iommu=force"                       # INFO: Force IOMMU for DMA protection
+    "elevator=none"                     # INFO: Use none scheduler (simplest, least attack surface)
+    "module.sig_enforce=1"              # INFO: Only load signed modules
+    "random.trust_cpu=off"              # INFO: Don't trust CPU RNG entropy
+    "random.trust_bootloader=off"       # INFO: Don't trust bootloader RNG entropy
+    "console=tty0"                      # INFO: Restrict console to main display
   ];
 
   # INFO: Modules to block via modprobe (returns /bin/false)

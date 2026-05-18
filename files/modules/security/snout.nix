@@ -111,7 +111,8 @@ in
       RestartSec = 5;
       User = "root";
       NoNewPrivileges = true;
-      ProtectSystem = "strict";
+      ProtectSystem = "full";
+      ReadWritePaths = [ "/var/log/snout" ];
       ProtectHome = true;
       PrivateTmp = true;
       PrivateDevices = true;

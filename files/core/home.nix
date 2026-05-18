@@ -5,7 +5,7 @@
   imports = [
     ../modules/dev/dev.nix
     ../modules/tools.nix
-    # NOTE: browser.nix is empty/placeholder - browser config is in privacy/privacy.nix
+    # NOTE: browser config is in privacy/privacy.nix
   ];
 
   home.username = "yusa";
@@ -23,7 +23,10 @@
     };
 
     gtk3.extraConfig = { Settings = ''gtk-application-prefer-dark-theme=1''; };
-    gtk4.extraConfig = { Settings = ''gtk-application-prefer-dark-theme=1''; };
+    gtk4 = {
+      theme = config.gtk.theme;
+      extraConfig = { Settings = ''gtk-application-prefer-dark-theme=1''; };
+    };
   };
   #dconf.settings = {
   #"org/virt-manager/virt-manager/connections" = {
@@ -114,13 +117,13 @@
     xdg-utils
     tty-clock
     matugen
+    flatpak-builder 
   ];
 
 # INFO: Files
   home.file = {
     ".icons".source                               = ../config/.icons;
     ".config/niri".source                         = ../config/niri;
-    ".config/vicinae".source                      = ../config/vicinae;
     ".config/nushell/shellrc.nu".source           = ./config/shellrc.nu;
     ".config/nix".source                          = ./config/nix;
 
@@ -128,7 +131,7 @@
     ".config/ghostty/config".text = ''
       font-family = Monocraft
       font-size = 13
-      shell = ${pkgs.nushell}/bin/nu
+      command = ${pkgs.nushell}/bin/nu
       background-opacity = 0.95
       background-blur = 1
       window-padding-x = 10

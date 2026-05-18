@@ -23,6 +23,9 @@ in
     # INFO: Security modules (imports submodules automatically)
     ../modules/security/default.nix
 
+    # INFO: Snort network IDS/IPS daemon
+    ../modules/security/snort.nix
+
     # INFO: Snout security monitoring daemon
     ../modules/security/snout.nix
 
@@ -37,7 +40,7 @@ in
     ../modules/gaming/gaming.nix
     ../modules/virtualisation.nix
     ../modules/minecraft.nix
-    ../modules/social.nix
+    # ../modules/social.nix  # removed - empty placeholder
     ../modules/flatpak.nix
   ];
 
@@ -56,8 +59,11 @@ in
     # Enable systemd initrd (required for LUKS)
     initrd.systemd.enable = true;
 
-    # LUKS encrypted root device
-    initrd.luks.devices."luks-a25ffcac-804c-475f-889c-753d99a91cc6".device = "/dev/disk/by-uuid/a25ffcac-804c-475f-889c-753d99a91cc6";
+    # LUKS encrypted root and swap devices
+    initrd.luks.devices = {
+      "luks-9e21658b-4fcf-4f61-b95b-6e53e78880ca".device = "/dev/disk/by-uuid/9e21658b-4fcf-4f61-b95b-6e53e78880ca";
+      "luks-9f6c7cfc-4ae0-42c1-b4a3-80723993f898".device = "/dev/disk/by-uuid/9f6c7cfc-4ae0-42c1-b4a3-80723993f898";
+    };
 
     # Plymouth boot splash
     plymouth = {
@@ -93,9 +99,7 @@ in
 
       # CPU performance tuning
       "intel_pstate=active"
-      "i915.enable_guc=2"
       "tsc=reliable"
-
     ];
   };
 
@@ -106,11 +110,9 @@ in
   # Host name
   networking.hostName = "atlas";
 
-  # Use NetworkManager
+  # Use NetworkManager with systemd-resolved for DNSSEC + DNS-over-TLS
   networking.networkmanager.enable = true;
-
-  # Disable systemd-resolved DNS (use direct nameservers)
-  networking.networkmanager.dns = "none";
+  networking.networkmanager.dns = "systemd-resolved";
 
   # Disable DHCP client (static IP)
   networking.useDHCP = false;
@@ -219,51 +221,80 @@ in
 
 
   # ============================================================================
-  # SECTION 9C: ADVANCED SECURITY HARDENING (2026 Standards)
+  # SECTION 9C: ADVANCED SECURITY HARDENING (Hardened Profile)
   # ============================================================================
-  # NOTE: These settings follow NixOS 25.x hardened profile recommendations
-  
+  # NOTE: Hardened kernel removed from nixpkgs unstable (abandoned upstream)
+  #       Boot params + sysctl hardening cover the same ground
+  # WARN: Test changes incrementally - some options may break hardware access
+
   # FIX: Enable AppArmor Mandatory Access Control
-  #      Required for enhanced process isolation
-  # WARN: Some applications may need updates to work with AppArmor
   security.apparmor = {
     enable = true;
     killUnconfinedConfinables = true;
   };
 
-  # FIX: Lock kernel modules after boot to prevent malicious module injection
+  # FIX: Lock kernel modules after boot
   security.lockKernelModules = true;
 
-  # FIX: Protect kernel image from being replaced
+  # FIX: Protect kernel image from replacement
   security.protectKernelImage = true;
 
-  # FIX: Force Page Table Isolation (PTI) for enhanced Meltdown protection
-  # NOTE: Default in NixOS 25.x hardened profile
+  # FIX: Force Page Table Isolation (Meltdown protection)
   security.forcePageTableIsolation = true;
 
-  # FIX: Disable Simultaneous Multithreading (SMT) for security
-  # WARN: Significant performance cost - disable if not needed
+  # INFO: SMT left enabled - disabling caused GPU driver issues on unstable kernel
   # security.allowSimultaneousMultithreading = false;
 
-  # FIX: Flush L1 data cache on context switch (for VM isolation)
-  # NOTE: "always" provides maximum security, "cond" is a balanced option
-  # security.virtualisation.flushL1DataCache = "always";
-
-  # FIX: GrapheneOS hardened memory allocator
-  # NOTE: DISABLED - causes boot issues and crashes
-  # environment.memoryAllocator.provider = "graphene-hardened";
+  # FIX: Flush L1 data cache on context switch (VM isolation)
+  security.virtualisation.flushL1DataCache = "always";
 
   # ============================================================================
   # SECTION 9D: LYNIS-BASED HARDENING IMPROVEMENTS
   # ============================================================================
   # NOTE: Based on lynis audit recommendations
   
-  # FIX: Enable Linux audit subsystem
-  #      Tracks security-relevant events for accountability
-  security.audit.enable = true;
+  # FIX: Enable Linux audit subsystem (kernel params handled by module)
+  #      Override ExecStart to skip -b/-f/-r flags that fail with auditctl 4.1 + kernel 6.18
+  security.audit = {
+    enable = true;
+    backlogLimit = 8192;
+  };
 
-  # FIX: Enable auditd daemon for logging
   security.auditd.enable = true;
+
+  systemd.services.audit-rules-nixos.serviceConfig = {
+    ExecStart = lib.mkForce "${pkgs.audit}/bin/auditctl -D && ${pkgs.audit}/bin/auditctl -R ${pkgs.writeTextDir "audit.rules" ''
+      -a always,exit -F arch=b64 -S adjtimex -S settimeofday -k time_change
+      -a always,exit -F arch=b64 -S clock_settime -k time_change
+      -w /etc/localtime -p wa -k time_change
+      -w /etc/group -p wa -k identity
+      -w /etc/passwd -p wa -k identity
+      -w /etc/gshadow -p wa -k identity
+      -w /etc/shadow -p wa -k identity
+      -w /etc/security/opasswd -p wa -k identity
+      -a always,exit -F arch=b64 -S sethostname -S setdomainname -k network_modifications
+      -w /etc/hostname -p wa -k network_modifications
+      -w /etc/hosts -p wa -k network_modifications
+      -w /etc/network -p wa -k network_modifications
+      -w /var/log/faillog -p wa -k logins
+      -w /var/log/lastlog -p wa -k logins
+      -w /var/log/tallylog -p wa -k logins
+      -w /etc/sudoers -p wa -k scope
+      -w /etc/sudoers.d/ -p wa -k scope
+      -w /sbin/insmod -p x -k modules
+      -w /sbin/rmmod -p x -k modules
+      -w /sbin/modprobe -p x -k modules
+      -a always,exit -F arch=b64 -S init_module,delete_module -k modules
+      -a always,exit -F arch=b64 -S chmod -F auid>=1000 -F auid!=-1 -k perm_mod
+      -a always,exit -F arch=b64 -S chown -F auid>=1000 -F auid!=-1 -k perm_mod
+      -a always,exit -F arch=b64 -S fchmod -F auid>=1000 -F auid!=-1 -k perm_mod
+      -a always,exit -F arch=b64 -S fchmodat -F auid>=1000 -F auid!=-1 -k perm_mod
+      -a always,exit -F arch=b64 -S open,openat -F exit=-EACCES -F auid>=1000 -F auid!=-1 -k access
+      -a always,exit -F arch=b64 -S open,openat -F exit=-EPERM -F auid>=1000 -F auid!=-1 -k access
+      -e 2
+    ''}/audit.rules";
+    ExecStopPost = lib.mkForce [ "${pkgs.coreutils}/bin/true" ];
+  };
 
   # FIX: Use dbus-broker instead of classic dbus
   #      More secure and better isolation
@@ -325,8 +356,35 @@ in
     };
   };
 
-  # FIX: Set domain for DNS (hostname already set earlier)
+  # FIX: Set domain for DNS
   networking.domain = "local";
+
+  # FIX: Enable USBGuard for USB device authorization
+  #      Allow all USB devices (relaxed policy); tighten with:
+  #      `sudo usbguard generate-policy > /var/lib/usbguard/rules.conf`
+  services.usbguard = {
+    enable = true;
+    rules = "allow";
+    implicitPolicyTarget = "block";
+    presentDevicePolicy = "apply-policy";
+    IPCAllowedUsers = [ "yusa" ];
+    IPCAllowedGroups = [ "wheel" ];
+    dbus.enable = true;
+  };
+
+  # FIX: Enable systemd-resolved for DNSSEC + DNS-over-TLS
+  services.resolved = {
+    enable = true;
+    settings = {
+      Resolve = {
+        DNS = [ "1.1.1.1" "1.0.0.1" "2606:4700:4700::1111" "2606:4700:4700::1001" ];
+        FallbackDNS = [ "8.8.8.8" "8.8.4.4" ];
+        DNSOverTLS = true;
+        DNSSEC = true;
+        DNSStubListener = "yes";
+      };
+    };
+  };
 
   # INFO: Additional LSM configuration (landlock, yama, bpf are now default in NixOS 25.05+)
 
@@ -411,7 +469,7 @@ in
     ];
     config = {
       niri = {
-        default = [ "gnome" "wlr" "gtk" ];
+        default = lib.mkForce [ "gnome" "wlr" "gtk" ];
         "org.freedesktop.impl.portal.ScreenCast" = [ "gnome" "wlr" ];
         "org.freedesktop.impl.portal.Screenshot" = [ "wlr" ];
       };
@@ -465,7 +523,7 @@ in
 
     # Media
     mpvpaper
-    helvum
+    crosspipe
     pavucontrol
     easyeffects
 
