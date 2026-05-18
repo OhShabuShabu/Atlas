@@ -119,8 +119,8 @@ in
 
   systemd.services.setup-mullvad-dirs = {
     description = "Setup Mullvad browser directories";
-    wantedBy = [ "graphical-session.target" ];
-    after = [ "graphical-session.target" ];
+    wantedBy = [ "multi-user.target" ];
+    after = [ "network.target" ];
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;

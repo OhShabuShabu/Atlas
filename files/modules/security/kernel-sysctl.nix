@@ -32,12 +32,15 @@ let
   exploitMitigation = {
     "kernel.unprivileged_bpf_disabled" = 1;   # INFO: Disable unprivileged eBPF
     "dev.tty.ldisc_autoload" = 0;               # INFO: Block unauthorized TTY disciplines
-    "vm.unprivileged_userfaultfd" = 0;         # INFO: Disable userfaultfd
+    # WARN: Breaks Wine/proton/VMs that rely on userfaultfd
+    # "vm.unprivileged_userfaultfd" = 0;         # INFO: Disable userfaultfd
     "kernel.kexec_load_disabled" = 1;          # INFO: Disable kexec
-    "kernel.sysrq" = 0;                         # INFO: Disable SysRq completely
-    "kernel.perf_event_paranoid" = 3;           # INFO: Restrict perf_event usage
-    # FIX: Disable BPF JIT to eliminate spray attacks (from hardened profile)
-    "net.core.bpf_jit_enable" = 0;
+    # WARN: SysRq useful for debugging hard freezes
+    # "kernel.sysrq" = 0;                         # INFO: Disable SysRq completely
+    # WARN: perf_event_paranoid=3 breaks profiling, some GPU tools
+    # "kernel.perf_event_paranoid" = 3;           # INFO: Restrict perf_event usage
+    # WARN: Disabling BPF JIT degrades eBPF performance significantly
+    # net.core.bpf_jit_enable = 0;
   };
 
   # INFO: Network security settings
@@ -98,15 +101,17 @@ let
     "net.ipv4.tcp_timestamps" = 0;
     # FIX: Kernel panic behaviour
     "kernel.panic" = 10;
-    "kernel.panic_on_oops" = 1;
-    "kernel.panic_on_unrecovered_nmi" = 1;
-    "kernel.panic_on_io_nmi" = 1;
+    # WARN: GPU drivers can trigger non-fatal oops during boot - panic_on_oops causes boot-loop
+    # "kernel.panic_on_oops" = 1;
+    # WARN: Benign NMI events (common on modern hardware) trigger panic
+    # "kernel.panic_on_unrecovered_nmi" = 1;
+    # "kernel.panic_on_io_nmi" = 1;
     # FIX: Restrict ksm (Kernel Same-page Merging - attack surface)
     "kernel.ksm.max_kernel_pages" = 0;
     # FIX: Disable ksm merging for security
     "kernel.ksm.use_zero_pages" = 0;
-    # FIX: Disable NFS caching
-    "net.core.optmem_max" = 0;
+    # WARN: Do NOT set net.core.optmem_max = 0 - breaks SO_ATTACH_FILTER
+    #       which systemd-logind needs for udev event monitoring
   };
 
   # INFO: Filesystem protection

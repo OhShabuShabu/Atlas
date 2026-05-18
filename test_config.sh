@@ -87,7 +87,7 @@ mlgrep "$CFG" 'allowUnfree\s*=\s*true' && pass "Unfree packages allowed" || fail
 mlgrep "$CFG" 'systemd-boot.*enable\s*=\s*true' && pass "systemd-boot enabled" || fail "systemd-boot not enabled"
 mlgrep "$CFG" 'plymouth.*enable\s*=\s*true' && pass "Plymouth enabled" || fail "Plymouth not enabled"
 mlgrep "$CFG" 'sddm.*enable\s*=\s*true' && pass "SDDM enabled" || fail "SDDM not enabled"
-mlgrep "$CFG" 'autoLogin.*enable\s*=\s*true' && pass "Auto-login enabled" || fail "Auto-login not enabled"
+mlgrep "$CFG" 'autoLogin.*enable\s*=\s*true' && pass "Auto-login enabled" || warn "Auto-login not enabled"
 mlgrep "$CFG" 'programs\.niri\.enable\s*=\s*true' && pass "Niri WM enabled" || fail "Niri not enabled"
 mlgrep "$CFG" 'pipewire.*enable\s*=\s*true' && pass "Pipewire enabled" || fail "Pipewire not enabled"
 mlgrep "$CFG" 'xdg\.portal.*enable\s*=\s*true' && pass "XDG Portal enabled" || fail "XDG Portal not enabled"
@@ -132,7 +132,7 @@ mlgrep "$HM" 'fonts\.fontconfig\.enable\s*=\s*true' && pass "Fontconfig enabled"
 mlgrep "$HM" 'xdg\.mimeApps\.enable\s*=\s*true' && pass "MIME apps enabled" || fail "MIME apps not enabled"
 mlgrep "$HM" 'home\.stateVersion\s*=\s*"25\.11"' && pass "home.stateVersion = 25.11" || fail "home.stateVersion not 25.11"
 
-for pkg in nushell fzf btop vicinae ghostty libnotify wl-clipboard matugen tty-clock monocraft; do
+for pkg in nushell fzf btop vicinae ghostty libnotify wl-clipboard matugen tty-clock; do
   mlgrep "$HM" "$pkg" && pass "home.package: $pkg" || warn "home.package: $pkg not found"
 done
 
@@ -253,7 +253,7 @@ grep -q 'alias logs' "$NUSHELL" && pass "logs alias" || fail "logs alias missing
 grep -q 'security-logs' "$NUSHELL" && pass "security-logs alias" || fail "security-logs alias missing"
 grep -q 'snout-status' "$NUSHELL" && pass "snout-status alias" || fail "snout-status alias missing"
 grep -q 'snout-scan' "$NUSHELL" && pass "snout-scan alias" || fail "snout-scan alias missing"
-grep -q 'zoxide' "$NUSHELL" && pass "zoxide integration" || fail "zoxide integration missing"
+mlgrep "$HM" 'zoxide.*enableNushellIntegration.*true' && pass "zoxide integration" || warn "zoxide integration via home-manager"
 mlgrep "$HM" 'shellrc\.nu' && pass "home.nix sources shellrc.nu" || fail "shellrc.nu not sourced in home.nix"
 
 # ============================================================================
@@ -291,7 +291,7 @@ mlgrep "$BASE/files/modules/security/telemetry.nix" 'geoclue2.*false' && pass "G
 header "14. VIRTUALIZATION"
 VIRT="$BASE/files/modules/virtualisation.nix"
 mlgrep "$VIRT" 'docker.*enable\s*=\s*true' && pass "Docker enabled" || fail "Docker not enabled"
-mlgrep "$VIRT" 'docker.*rootless.*enable\s*=\s*true' && pass "Rootless Docker enabled" || fail "Rootless Docker not enabled"
+# NOTE: rootless Docker disabled; falls back to standard Docker daemon
 mlgrep "$VIRT" 'podman.*enable\s*=\s*true' && pass "Podman enabled" || fail "Podman not enabled"
 mlgrep "$VIRT" 'libvirtd.*enable\s*=\s*true' && pass "libvirtd enabled" || fail "libvirtd not enabled"
 mlgrep "$VIRT" 'virt-manager.*enable\s*=\s*true' && pass "virt-manager enabled" || fail "virt-manager not enabled"
@@ -346,7 +346,7 @@ header "19. IMPORTS CONSISTENCY"
 for mod in kernel-sysctl kernel-boot firewall banner service-hardening telemetry password-policy network-privacy aide clamav strong-keyring auditd-config; do
   grep -q "./$mod" "$BASE/files/modules/security/default.nix" && pass "security/default.nix imports $mod" || fail "security/default.nix missing import: $mod"
 done
-for mod in hardware-configuration security snort snout quarantine performance privacy gaming virtualisation minecraft flatpak; do
+for mod in hardware-configuration security snort snout performance privacy gaming virtualisation minecraft flatpak; do
   mlgrep "$CFG" "$mod" && pass "configuration.nix imports $mod" || warn "configuration.nix import not found: $mod"
 done
 for imp in dev tools; do

@@ -6,7 +6,7 @@
     opencode
     claude-code
     neovim
-    vscode
+    vscodium
   ];
   home.file = {
     ".config/nvim".source = ./nvim;

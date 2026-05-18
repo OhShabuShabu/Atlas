@@ -7,11 +7,6 @@
 # ============================================================================
 
 { config, pkgs, lib, inputs, ... }:
-
-let
-  # FIX: Use lib.getExe for safer package path resolution
-  #      and avoid eval-order issues with user home paths
-in
 {
   # ============================================================================
   # MODULE IMPORTS
@@ -29,9 +24,6 @@ in
     # INFO: Snout security monitoring daemon
     ../modules/security/snout.nix
 
-    # INFO: Quarantine sandboxed folder at /etc/quarantine
-    ../modules/security/quarantine.nix
-
     # INFO: Performance module
     ../modules/performance.nix
 
@@ -40,13 +32,8 @@ in
     ../modules/gaming/gaming.nix
     ../modules/virtualisation.nix
     ../modules/minecraft.nix
-    # ../modules/social.nix  # removed - empty placeholder
     ../modules/flatpak.nix
   ];
-
-  # NOTE: silentSDDM module removed - using standard SDDM instead
-  #       Uncomment below and add import above if you want to use it
-  # programs.silentSDDM.enable = true;
 
 
   # ============================================================================
@@ -173,14 +160,7 @@ in
 
 
   # ============================================================================
-  # SECTION 6: X SERVER & DESKTOP
-  # ============================================================================
-  # Enable X server
-  # Wayland compositor (Niri) - X server not needed
-
-
-# ============================================================================
-  # SECTION 7: USER CONFIGURATION
+  # SECTION 6: USER CONFIGURATION
   # ============================================================================
   # Main user account
   users.users.yusa = {
@@ -191,13 +171,18 @@ in
       "wheel"
       "docker"
     ];
-    packages = with pkgs; [];
   };
 
 
   # ============================================================================
-  # SECTION 9: SYSTEMD SERVICES
+  # SECTION 7: SYSTEMD SERVICES
   # ============================================================================
+  # FIX: Increase memlock limit for logind so it can attach BPF filters
+  #      for udev event monitoring (default 8M is too low with bpf_jit_harden=2)
+  systemd.services.systemd-logind.serviceConfig = {
+    LimitMEMLOCK = "infinity";
+  };
+
   # Polkit GNOME authentication agent
   systemd.user.services.polkit-gnome-authentication-agent-1 = {
     description = "polkit-gnome-authentication-agent-1";
@@ -214,14 +199,14 @@ in
   };
 
   # ============================================================================
-  # SECTION 9B: POLKIT CONFIGURATION
+  # SECTION 8: POLKIT CONFIGURATION
   # ============================================================================
   # Enable polkit system-wide for graphical auth popup
   security.polkit.enable = true;
 
 
   # ============================================================================
-  # SECTION 9C: ADVANCED SECURITY HARDENING (Hardened Profile)
+  # SECTION 9: ADVANCED SECURITY HARDENING (Hardened Profile)
   # ============================================================================
   # NOTE: Hardened kernel removed from nixpkgs unstable (abandoned upstream)
   #       Boot params + sysctl hardening cover the same ground
@@ -249,7 +234,7 @@ in
   security.virtualisation.flushL1DataCache = "always";
 
   # ============================================================================
-  # SECTION 9D: LYNIS-BASED HARDENING IMPROVEMENTS
+  # SECTION 10: LYNIS-BASED HARDENING IMPROVEMENTS
   # ============================================================================
   # NOTE: Based on lynis audit recommendations
   
@@ -281,14 +266,14 @@ in
       -w /var/log/tallylog -p wa -k logins
       -w /etc/sudoers -p wa -k scope
       -w /etc/sudoers.d/ -p wa -k scope
-      -a always,exit -F arch=b64 -S init_module,delete_module -k modules
+      -a always,exit -F arch=b64 -S init_module -k modules
+      -a always,exit -F arch=b64 -S delete_module -k modules
       -a always,exit -F arch=b64 -S chmod -F auid>=1000 -F auid!=-1 -k perm_mod
       -a always,exit -F arch=b64 -S chown -F auid>=1000 -F auid!=-1 -k perm_mod
       -a always,exit -F arch=b64 -S fchmod -F auid>=1000 -F auid!=-1 -k perm_mod
       -a always,exit -F arch=b64 -S fchmodat -F auid>=1000 -F auid!=-1 -k perm_mod
       -a always,exit -F arch=b64 -S open,openat -F exit=-EACCES -F auid>=1000 -F auid!=-1 -k access
       -a always,exit -F arch=b64 -S open,openat -F exit=-EPERM -F auid>=1000 -F auid!=-1 -k access
-      -e 2
     ''}/audit.rules\"";
     ExecStopPost = lib.mkForce [ "${pkgs.coreutils}/bin/true" ];
   };
@@ -310,7 +295,7 @@ in
   };
 
   # ============================================================================
-  # SECTION 9E: LOGGING AND PAM HARDENING
+  # SECTION 11: LOGGING AND PAM HARDENING
   # ============================================================================
   # FIX: Configure log rotation - NixOS 25.11 format
   services.logrotate.enable = true;
@@ -387,20 +372,20 @@ in
 
 
   # ============================================================================
-  # SECTION 10: WINDOW MANAGER - Niri
+  # SECTION 12: WINDOW MANAGER - Niri
   # ============================================================================
   # Enable Niri (Wayland compositor)
   programs.niri.enable = true;
 
 
   # ============================================================================
-  # SECTION 11: NOCTALIA SHELL
+  # SECTION 13: NOCTALIA SHELL
   # ============================================================================
   # Noctalia is configured via home-manager (programs.noctalia-shell).
   # Systemd startup is deprecated - the shell is spawned from Niri config.
 
   # ============================================================================
-  # SECTION 12: QT & THEME SETTINGS
+  # SECTION 14: QT & THEME SETTINGS
   # ============================================================================
   # Dynamic theming with Matugen colors
   # FIX: Use environment.path instead of config reference to avoid eval-order issues
@@ -427,33 +412,42 @@ in
     enable = true;
     platformTheme = "kde";
   };
+  services.xserver = {
+    enable = true;
 
+    libinput = {
+      enable = true;
 
-  # ============================================================================
-  # SECTION 13: DISPLAY MANAGER (SDDM)
-  # ============================================================================
-  # SDDM configuration
-  services.displayManager = {
-    sddm = {
-      enable = true;
-      wayland.enable = true;
-      package = pkgs.kdePackages.sddm;
-      theme = "sddm-astronaut-theme";
-      extraPackages = with pkgs; [
-        sddm-astronaut
-        kdePackages.qtmultimedia
-      ];
-    };
-    # Auto-login for user
-    autoLogin = {
-      enable = true;
-      user = "yusa";
+      # disabling mouse acceleration
+      mouse = {
+        accelProfile = "flat";
+      };
+
+      # disabling touchpad acceleration
+      touchpad = {
+        accelProfile = "flat";
+      };
     };
   };
 
 
   # ============================================================================
-  # SECTION 14: XDG PORTAL
+  # SECTION 15: DISPLAY MANAGER (SDDM)
+  # ============================================================================
+  services.displayManager.sddm = {
+    enable = false;
+    wayland.enable = false;
+    package = pkgs.kdePackages.sddm;
+    theme = "sddm-astronaut-theme";
+    extraPackages = with pkgs; [
+      sddm-astronaut
+      kdePackages.qtmultimedia
+    ];
+  };
+
+
+  # ============================================================================
+  # SECTION 16: XDG PORTAL
   # ============================================================================
   # XDG portal for Flatpak support
   xdg.portal = {
@@ -475,7 +469,7 @@ in
 
 
   # ============================================================================
-  # SECTION 15: AUDIO (PIPEWIRE)
+  # SECTION 17: AUDIO (PIPEWIRE)
   # ============================================================================
   services.pipewire = {
     enable = true;
@@ -486,7 +480,7 @@ in
 
 
   # ============================================================================
-  # SECTION 16: SYSTEM PACKAGES
+  # SECTION 18: SYSTEM PACKAGES
   # ============================================================================
   # Core system packages
   environment.systemPackages = with pkgs; [
@@ -541,13 +535,11 @@ in
     # System trash manager
     trashy
 
-    # INFO: Security auditing tools (from lynis recommendations)
-    # NOTE: Package audit tool for vulnerability detection
-    vulnix  # Uncomment if needed - can be resource intensive
+    # INFO: vulnix defined in security/default.nix
   ];
 
   # ============================================================================
-  # SECTION 17: ADDITIONAL HARDENING
+  # SECTION 19: ADDITIONAL HARDENING
   # ============================================================================
   # FIX: Restrict /home permissions for better security
   #      Prevents other users from accessing user data
@@ -555,7 +547,7 @@ in
 
 
   # ============================================================================
-  # SECTION 17: FONTS
+  # SECTION 20: FONTS
   # ============================================================================
   # Font configuration
   fonts.packages = with pkgs; [
@@ -581,7 +573,7 @@ in
 
 
   # ============================================================================
-  # SECTION 18: SYSTEM VERSION
+  # SECTION 21: SYSTEM VERSION
   # ============================================================================
   # NixOS state version
   system.stateVersion = "25.11";

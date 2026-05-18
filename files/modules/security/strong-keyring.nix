@@ -9,12 +9,12 @@
 
 let
   cfg = {
-    enable = true;
+    enable = false;  # Set to true if using hardware security tokens / IPsec VPN
     enablePKCS11 = true;
     enableTPM = true;
   };
 in
-{
+lib.mkIf cfg.enable {
   # FIX: Enable strongSwan VPN with Strong Keyring support
   services.strongswan = {
     enable = cfg.enable;
@@ -68,11 +68,4 @@ in
     alias strongswan-status='sudo ipsec status'
     alias strongswan-restart='sudo ipsec restart'
   '';
-
-  # INFO: Security note about Strong Keyring
-  # NOTE: Hardware tokens provide:
-  #   - Key material never leaves the token (offline key storage)
-  #   - Protection against key extraction attacks
-  #   - Support for multiple cryptographic algorithms
-  #   - Audit trails for compliance requirements
 }

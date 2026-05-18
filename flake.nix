@@ -14,6 +14,7 @@
     };
   };
   outputs = inputs @ { self, nixpkgs, home-manager, noctalia, ... }: {
+    formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.nixpkgs-fmt;
     nixosConfigurations.atlas = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       specialArgs = { inherit inputs noctalia; };

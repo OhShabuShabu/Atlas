@@ -17,11 +17,15 @@
   # SECTION 2: LIBVIRT CONFIGURATION
   # ============================================================================
   # Add user to libvirt group
-  users.groups.libvirtd.members = [ "yusa" ];
   users.users.yusa.extraGroups = [ "libvirtd" ];
 
   # Enable libvirt daemon
   virtualisation.libvirtd.enable = true;
+
+  # Strip LoadCredentialEncrypted from libvirtd service (upstream unit requires
+  # /var/lib/libvirt/secrets/secrets-encryption-key which systemd cannot find,
+  # causing CREDENTIALS=243 failure). Not needed for local socket-only usage.
+  systemd.services.libvirtd.serviceConfig.LoadCredentialEncrypted = lib.mkForce [ "" ];
 
 
   # ============================================================================
@@ -30,11 +34,7 @@
   # Enable Docker
   virtualisation.docker.enable = true;
 
-  # Enable rootless Docker (security best practice)
-  virtualisation.docker.rootless = {
-    enable = true;
-    setSocketVariable = true;
-  };
+  # NOTE: rootless Docker available via virtualisation.docker.rootless.enable if needed
 
   # Enable SPICE USB redirection (for VM device passthrough)
   virtualisation.spiceUSBRedirection.enable = true;

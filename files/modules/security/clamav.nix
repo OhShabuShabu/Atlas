@@ -29,16 +29,14 @@ in
   ];
 
   services.clamav = {
-    daemon = {
-      enable = true;
-      settings = {
-        TemporaryDirectory = "/var/lib/clamav/tmp";
-        OnAccessIncludePath = [ "/home" "/tmp" "/var" "/srv" ];
-        OnAccessPrevention = false;
-        OnAccessExtraScanning = true;
-        OnAccessExcludeRootUID = true;
-        OnAccessMaxFileSize = "10M";
-      };
+    daemon.enable = true;
+    daemon.settings = {
+      TemporaryDirectory = "/var/lib/clamav/tmp";
+      OnAccessIncludePath = [ "/home" "/tmp" "/var" "/srv" ];
+      OnAccessPrevention = false;
+      OnAccessExtraScanning = true;
+      OnAccessExcludeRootUID = true;
+      OnAccessMaxFileSize = "10M";
     };
     updater.enable = true;
     # NOTE: On-access scanning disabled on unstable kernel - causes filesystem hangs
@@ -48,7 +46,6 @@ in
   systemd.services.clamav-daemon = {
     serviceConfig = {
       Restart = "on-failure";
-      PrivateNetwork = lib.mkForce true;
       NoNewPrivileges = true;
     };
   };

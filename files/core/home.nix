@@ -58,28 +58,27 @@
   # Enable fontconfig for fonts
   fonts.fontconfig.enable = true;
   fonts.fontconfig.defaultFonts = {
-    sansSerif = [ "Monocraft" ];
-    serif = [ "Monocraft" ];
+    sansSerif = [ "Roboto" ];
+    serif = [ "Noto Serif" ];
     monospace = [ "Monocraft" ];
   };
   
   xdg.mimeApps.enable = true;
   xdg.mimeApps.defaultApplications = {
+  "text/plain" = "code.desktop";
+  "text/css" = "code.desktop";
+  "application/x-shellscript" = "code.desktop";
+  "application/x-zerosize" = "code.desktop";
+  "text/html" = "firefox.desktop";
+  "x-scheme-handler/http" = "firefox.desktop";
+  "x-scheme-handler/https" = "firefox.desktop";
+  "application/pdf" = "firefox.desktop";
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document" = "libreoffice.desktop";
   "image/jpeg" = "imv.desktop";
   "image/png" = "imv.desktop";
   "image/gif" = "firefox.desktop";
   "image/webp" = "org.gnome.eog.desktop";
   "image/heif" = "imv.desktop";
-  "text/plain" = "codium.desktop";
-  "text/css" = "codium.desktop";
-  "application/x-shellscript" = "codium.desktop";
-  "application/x-zerosize" = "codium.desktop";
-  "text/html" = "librewolf.desktop";
-  "x-scheme-handler/http" = "librewolf.desktop";
-
-  "x-scheme-handler/https" = "librewolf.desktop";
-  "application/pdf" = "librewolf.desktop";
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document" = "chromium.desktop";
   "audio/mpeg" = "org.gnome.Decibels.desktop";
   "inode/directory" = "org.gnome.Nautilus.desktop";
   "video/mp4" = "mpv.desktop";
@@ -110,7 +109,6 @@
     adwaita-icon-theme
     papirus-icon-theme
     gnome-themes-extra
-    monocraft
     nautilus
     libnotify
     wl-clipboard

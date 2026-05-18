@@ -316,8 +316,8 @@ let
     -- Snort++ configuration — Atlas NixOS Security Hardening
     -- ============================================================================
 
-    HOME_NET = 'any'
-    EXTERNAL_NET = 'any'
+    HOME_NET = '192.168.0.0/16'
+    EXTERNAL_NET = '!$HOME_NET'
 
     RULE_PATH = '${snortRules}'
     BUILTIN_RULE_PATH = '${snortPkg}/etc/snort'
@@ -546,7 +546,7 @@ in
     path = [ snortPkg pkgs.coreutils pkgs.gawk pkgs.gnused ];
     serviceConfig = {
       Type = "simple";
-      ExecStart = ''${snortPkg}/bin/snort -c ${snortConfig}/snort.lua -i lo -l /var/log/snort'';
+      ExecStart = ''${snortPkg}/bin/snort -c ${snortConfig}/snort.lua -i any -l /var/log/snort'';
       ExecReload = "${snortPkg}/bin/snort -c ${snortConfig}/snort.lua -T 2>/dev/null && kill -HUP $MAINPID";
       Restart = "on-failure";
       RestartSec = 10;

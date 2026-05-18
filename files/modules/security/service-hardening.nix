@@ -23,13 +23,6 @@
   # FIX: Enhanced service hardening with sandbox options (BOOT-5264)
   # NOTE: Keep essential services working while adding protection
   systemd.services = {
-    # INFO: Systemd journald - log management
-    # WARN: Keep journald minimal - aggressive hardening can break boot logging
-    systemd-journald.serviceConfig = {
-      PrivateTmp = true;
-      NoNewPrivileges = true;
-    };
-
     # INFO: Systemd timesyncd - network time sync
     systemd-timesyncd.serviceConfig = {
       PrivateTmp = true;

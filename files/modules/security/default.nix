@@ -7,15 +7,15 @@
 
 {
   imports = [
-    # ./kernel-sysctl.nix
-    # ./kernel-boot.nix
-    # ./process-accounting.nix
+    ./kernel-sysctl.nix
+    ./kernel-boot.nix
+    ./process-accounting.nix
 
     ./firewall.nix
     ./banner.nix
 
-    # ./service-hardening.nix
-    # ./telemetry.nix
+    ./service-hardening.nix
+    ./telemetry.nix
 
     ./password-policy.nix
     ./network-privacy.nix
@@ -24,9 +24,6 @@
     ./strong-keyring.nix
     ./auditd-config.nix
     ./quarantine.nix
-
-    # ./snort.nix
-    # ./snout.nix
   ];
 
   # INFO: Security packages

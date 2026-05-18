@@ -1,6 +1,6 @@
 # Atlas
 
-A personalized NixOS 25.11 configuration built with Home Manager, featuring the Noctalia desktop shell, enterprise-grade security hardening, gaming optimizations, and a privacy-first browsing setup.
+A personalized NixOS (nixos-unstable) configuration built with Home Manager, featuring the Noctalia desktop shell, enterprise-grade security hardening, gaming optimizations, and a privacy-first browsing setup.
 
 ## Overview
 
@@ -16,10 +16,10 @@ A personalized NixOS 25.11 configuration built with Home Manager, featuring the 
 
 ### Desktop Experience
 - **Noctalia Shell** — Sleek Wayland desktop shell (status bar, notifications, OSD, widgets)
-- **Dynamic theming** — [Matugen](https://github.com/InioX/matugen) generates colors from wallpapers, applied across GTK, Qt, and Kitty
+- **Dynamic theming** — [Matugen](https://github.com/InioX/matugen) generates colors from wallpapers, applied across GTK, Qt, and Ghostty
 - **Wallpaper management** — [awww](https://github.com/end-4/awww) daemon for animated wallpapers
 - **Application launcher** — [Vicinae](https://github.com/vicinaehq/vicinae)
-- **Notifications** — Mako + Noctalia notification system
+- **Notifications** — Noctalia notification system
 
 ### Gaming & Performance
 - **Steam** with [Millennium](https://github.com/SteamClientHomebrew/Millennium) theming overlay
@@ -36,8 +36,8 @@ A personalized NixOS 25.11 configuration built with Home Manager, featuring the 
 - **Snout** — security monitoring daemon that watches /etc/quarantine and integrates with ClamAV
 - **AIDE** file integrity monitoring with daily checks
 - **Quarantine** — sandboxed, locked-down directory at /etc/quarantine with 0000 permissions, chattr +a, noexec,nosuid,nodev bind mount, and automatic shredding at shutdown
-- Extensive kernel hardening (sysctl, locked modules, disabled protocols)
-- Systemd service sandboxing with security profiles
+- Extensive kernel hardening (sysctl, locked modules, disabled protocols, boot params)
+- Systemd service sandboxing with security profiles (now properly applied)
 - LUKS full-disk encryption
 
 ### Development & Tools
@@ -117,7 +117,6 @@ The /etc/quarantine directory is sandboxed with:
 - Post-scan sanitization: quarantined files are immediately set to **0000 permissions**
 - Separate quarantine verification scan
 - Desktop notifications on threat detection and clean scans
-- Daemon hardened with `PrivateNetwork=true`
 
 ### File Integrity (AIDE)
 - Monitors /bin, /sbin, /usr, /etc, /var/lib
@@ -176,7 +175,7 @@ sudo ls -la /etc/quarantine               # Direct listing (root only)
 | **Media** | mpv, mpvpaper, linux-wallpaperengine, imv |
 | **Dev** | Neovim (LazyVim), opencode, claude-code, bun |
 | **Security** | Snout, ClamAV, AIDE, Lynis, auditd |
-| **Utilities** | Noctalia, Mako, btop, tty-clock, fzf, trashy, Nautilus |
+| **Utilities** | Noctalia, btop, tty-clock, fzf, trashy, Nautilus |
 
 ## Theming
 
@@ -193,7 +192,7 @@ sudo ls -la /etc/quarantine               # Direct listing (root only)
 
 | Shortcut | Action |
 |----------|--------|
-| `Mod+T` | Open Kitty terminal |
+| `Mod+T` | Open Ghostty terminal |
 | `Mod+Space` | Open Vicinae launcher |
 | `Mod+H/J/K/L` | Focus window (vim-style) |
 | `Mod+Shift+W` | Noctalia panel toggle |
